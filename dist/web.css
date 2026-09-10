@@ -1,0 +1,55 @@
+:root { color-scheme: dark; font-family: system-ui, "PingFang SC", sans-serif; color: #f4efcb; background: #172314; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100dvh; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: radial-gradient(ellipse at top, #344b26, #131d10 85%); }
+button { font: inherit; font-size: .875rem; min-height: 44px; cursor: pointer; color: #263b22; background: #efdfac url("button.png") center/100% 100% no-repeat; border: 1px solid #8b592d; border-radius: 5px; padding: 8px 14px; }
+button:hover { filter: brightness(1.08); } button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, canvas:focus-visible { outline: 3px solid #ffe374; outline-offset: 3px; }
+[hidden] { display: none !important; }
+#game-shell { width: min(1100px, 100%); margin: auto; }
+.browser-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 0 8px; min-height: 52px; }
+#game-title { font-weight: 600; font-size: 1rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tools { display: flex; gap: 6px; flex-shrink: 0; }
+#game-viewport { position: relative; width: 100%; aspect-ratio: 4 / 3; margin: auto; box-shadow: 0 12px 40px #0008; overflow: hidden; background: #111; }
+#canvas { display: block; width: 100% !important; height: 100% !important; max-width: none !important; margin: 0 !important; padding: 0; border: 0; position: absolute !important; inset: 0 !important; touch-action: none; }
+#boot-screen { position: absolute; inset: 0; }
+#boot-screen img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.boot-panel { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); width: min(92%, 480px); padding: 16px; background: #efdfbbf5; border: 4px solid #815331; border-radius: 9px; color: #253b1c; text-align: center; box-shadow: 0 4px 20px #0007; }
+.boot-panel p { margin: 0 0 12px; font-size: 1rem; line-height: 1.5; }
+progress { display: block; width: 100%; margin: 10px 0; accent-color: #68ae30; height: 10px; }
+.touch-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 10px 0 8px; }
+.touch-actions strong { margin-right: auto; font-size: 1rem; }
+#card-strip { display: flex; overflow-x: auto; gap: 8px; padding: 4px 2px 8px; scrollbar-width: thin; scroll-snap-type: x proximity; }
+.plant-card { flex: 0 0 82px; position: relative; padding: 4px; min-height: 144px; scroll-snap-align: start; background: #dbe4a8; color: #1f3518; border: 3px solid #557441; border-radius: 4px; }
+.plant-card img { display: block; width: 64px; height: 89.6px; object-fit: contain; margin: 0 auto; pointer-events: none; }
+.plant-card span { display: block; font-size: .875rem; white-space: nowrap; }
+.plant-card[aria-pressed="true"] { border-color: #ffe877; box-shadow: 0 0 0 2px #f9cb35; }
+.plant-card[data-ready="false"] img { filter: brightness(.5); }
+.plant-card .cooldown { position: absolute; inset: 8px 0 auto; color: white; font-weight: bold; text-shadow: 1px 1px #000; }
+.touch-hint { margin: 0 0 8px; font-size: .875rem; color: #c5cea9; }
+.paper-panel, dialog { background: #f0e3c0 url("paper.png") center/100% 100%; color: #293820; border: 3px solid #88603d; border-radius: 8px; padding: 18px; }
+.paper-panel h2, dialog h2 { font-size: 1.2rem; margin: 0 0 10px; }
+.paper-panel p, dialog p { margin: 0 0 14px; font-size: 1rem; line-height: 1.6; white-space: pre-line; }
+.guide-buttons, .save-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+dialog { width: min(94vw, 550px); max-height: 88dvh; overflow-y: auto; }
+dialog::backdrop { background: #0009; }
+dialog form { margin-top: 16px; text-align: right; }
+#notice { font-size: 1rem; line-height: 1.5; padding: 10px; color: #ffe09a; }
+#game-shell:fullscreen { width: 100%; height: 100%; padding: 4px; background: #152111; overflow-y: auto; }
+#game-shell:fullscreen #game-viewport { width: min(100%, calc((100dvh - 58px) * 4 / 3)); }
+@media (min-width: 901px) { #touch-controls, #guide-panel, #reward-panel { display: none !important; } }
+@media (max-width: 600px) {
+  #game-title { display: none; }
+  .browser-tools { justify-content: flex-end; }
+  .tools { width: 100%; } .tools button { flex: 1; padding-inline: 8px; }
+  .boot-panel { bottom: 3%; padding: 10px; } .boot-panel p { font-size: .875rem; margin-bottom: 6px; }
+  .boot-panel button { padding: 6px 10px; }
+  .touch-actions button { padding: 8px 10px; } .touch-actions strong { flex-basis: 100%; }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  body { padding-block: 0; }
+  .browser-tools { min-height: 44px; padding: 0; }
+  .browser-tools button { min-height: 36px; padding: 4px 12px; }
+  #game-viewport { width: min(100%, calc((100dvh - 48px) * 4 / 3)); }
+  #touch-controls { margin-top: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }

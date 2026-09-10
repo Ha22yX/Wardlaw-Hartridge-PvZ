@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#23351c">
+  <meta name="description" content="人物版植物大战僵尸完整网页版，保留原游戏素材、规则、五关战役与小游戏。">
+  <title>人像草坪保卫战 · 网页版</title>
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="web.css">
+  <script>
+  var config = {
+    xtermjs: 0, _sdl2: "canvas", user_canvas: 1, user_canvas_managed: 1,
+    gui_divider: 1, ume_block: 1, can_close: 0, archive: "pypvz",
+    gui_debug: 0, cdn: "https://pygame-web.github.io/cdn/0.9.3/",
+    autorun: 0, PYBUILD: "3.12", fb_ar: 4/3, fb_width: 800, fb_height: 600
+  };
+  </script>
+  <script src="web.js" defer></script>
+</head>
+<body>
+  <main id="game-shell" aria-label="人像草坪保卫战">
+    <div class="browser-tools">
+      <span id="game-title">人像草坪保卫战</span>
+      <div class="tools">
+        <button id="sound-button" aria-label="切换声音" title="声音">声音：开</button>
+        <button id="fullscreen-button">全屏</button>
+        <button id="help-button">操作 / 存档</button>
+      </div>
+    </div>
+    <div id="game-viewport">
+      <canvas id="canvas" width="800" height="600" tabindex="0" aria-label="游戏画面：点击卡片，再点击草坪种植"></canvas>
+      <div id="boot-screen">
+        <img src="menu-preview.png" alt="原游戏主菜单" width="800" height="600">
+        <div class="boot-panel">
+          <p id="boot-status" role="status">完整游戏正在加载，首次打开需要下载素材。</p>
+          <progress id="boot-progress" max="100" value="0"></progress>
+          <button id="start-button">点击开启游戏与声音</button>
+          <button id="retry-button" hidden>重新加载</button>
+        </div>
+      </div>
+      <div id="game-ended" class="boot-panel" hidden>
+        <p>游戏已退出，进度已保存在此浏览器。</p>
+        <button data-action="home">返回主菜单</button>
+      </div>
+    </div>
+    <section id="touch-controls" aria-label="触屏操作栏" hidden>
+      <div class="touch-actions">
+        <strong id="sun-count">阳光 0</strong>
+        <button data-action="menu">菜单</button>
+        <button id="speed-button" data-action="speed">开启2倍速</button>
+        <button data-action="shovel">铲子</button>
+        <button data-action="cancel">取消选择</button>
+      </div>
+      <div id="card-strip" aria-label="当前植物卡片"></div>
+      <p class="touch-hint">点卡片再点草坪 · 长按卡片看介绍</p>
+    </section>
+    <section id="guide-panel" class="paper-panel" hidden aria-live="polite">
+      <h2 id="guide-title"></h2>
+      <p id="guide-text"></p>
+      <div class="guide-buttons">
+        <button id="guide-next" data-action="guide">继续</button>
+        <button data-action="skip">跳过引导</button>
+      </div>
+    </section>
+    <section id="reward-panel" class="paper-panel" hidden>
+      <p id="reward-text"></p><button data-action="reward">领取并继续</button>
+    </section>
+    <p id="notice" role="status" hidden></p>
+  </main>
+  <dialog id="details-dialog" aria-labelledby="detail-title">
+    <h2 id="detail-title"></h2><p id="detail-meta"></p><p id="detail-text"></p>
+    <form method="dialog"><button>返回游戏</button></form>
+  </dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <h2 id="help-title">操作与存档</h2>
+    <p>点击植物卡片，再点击草坪种植。右键或“取消选择”取消；使用铲子移除植物。电脑悬停 0.5 秒、手机长按卡片可查看介绍。</p>
+    <p>手机横屏可获得更大的画面。切换到其他标签页时游戏自动停下；二倍速仍由游戏内按钮控制。</p>
+    <p>数字 9：加100阳光；数字 0：清除冷却；− / +：上一关 / 下一关。日常通关不需要这些快捷键。</p>
+    <p>关卡进度与音量仅保存在当前浏览器。刷新不会保留未结束的对局；清除浏览器数据会删除本地进度。可导出备份，再在另一台设备导入。</p>
+    <div class="save-actions">
+      <button data-action="export">导出存档</button>
+      <button id="import-button">导入存档</button>
+      <input id="save-file" type="file" accept=".json,application/json" hidden>
+    </div>
+    <form method="dialog"><button>返回游戏</button></form>
+  </dialog>
+  <!-- Required, hidden runtime hooks. They are not alternate game controls. -->
+  <div id="transfer" hidden><span id="status"></span><progress id="progress"></progress></div>
+  <div id="infobox" hidden></div><div id="html" hidden></div>
+  <div id="pyconsole" hidden><div id="terminal"></div></div>
+  <div id="system" hidden></div><div id="info" hidden></div><div id="box" hidden></div>
+  <canvas id="canvas3d" width="800" height="600" hidden></canvas>
+  <script src="https://pygame-web.github.io/cdn/0.9.3/pythons.js" type="module" id="site"
+    data-python="python3.12" data-LINES="0" data-COLUMNS="0" data-os="vtx,snd,gui" async defer>#<!--
+import asyncio
+import json
+import platform
+from pathlib import Path
+
+async def custom_site():
+    import embed
+    import zipfile
+    try:
+        appdir = Path("/data/data/pypvz")
+        appdir.mkdir(parents=True, exist_ok=True)
+        async with platform.fopen("asset-packs.json", "r") as handle:
+            packs = json.loads(handle.read())
+        for index, pack in enumerate(packs["packs"]):
+            platform.window.pvzReceive("status", json.dumps(f"正在加载完整素材 {index + 1}/{len(packs['packs'])}…"))
+            async with platform.fopen(pack["url"], "rb") as archive:
+                with zipfile.ZipFile(archive) as bundle:
+                    bundle.extractall(appdir.as_posix())
+            platform.window.pvzReceive("progress", json.dumps(round((index + 1) / len(packs["packs"]) * 80)))
+        platform.run_main(PyConfig, loaderhome=appdir / "assets", loadermain=None)
+        while embed.counter() < 0:
+            await asyncio.sleep(.1)
+        main = appdir / "assets" / "main.py"
+        __import__(__name__).__file__ = main
+        platform.window.pvzReceive("status", json.dumps("素材已就绪，点击画面开启游戏与声音。"))
+        platform.window.pvzReceive("progress", "90")
+        while not (platform.window.MM.UME or platform.window.pvzStartRequested):
+            await asyncio.sleep(.1)
+        await TopLevel_async_handler.start_toplevel(platform.shell, console=False)
+        await shell.source(main)
+    except Exception:
+        import traceback
+        platform.window.pvzReceive("failure", json.dumps(traceback.format_exc()))
+
+asyncio.run(custom_site())
+# BEGIN BLOCK
+# =============================================================================
+# --></script>
+</body>
+</html>

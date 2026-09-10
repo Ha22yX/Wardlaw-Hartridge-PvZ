@@ -1,0 +1,7 @@
+.venv/
+.sites-runtime/
+.env*
+__pycache__/
+app/build/
+app/.git/
+*.pyc
