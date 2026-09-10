@@ -33,3 +33,20 @@ def draw_button(surface, rect, text, font):
     surface.blit(pg.transform.scale(image, rect.size), rect)
     label = font.render(text, True, c.NAVYBLUE)
     surface.blit(label, label.get_rect(center=rect.center))
+
+
+def stone_menu_button(source, text, highlighted=False):
+    """Relabel the existing slanted menu plaque, retaining its stone border."""
+    image = source.copy()
+    face = source.get_at((160, 26))
+    pg.draw.polygon(image, face, ((8, 15), (301, 54), (291, 116), (7, 68)))
+    font = pg.font.Font(c.FONT_PATH, 38)
+    font.bold = True
+    label = font.render(text, True, c.YELLOWGREEN if highlighted else (16, 17, 28))
+    relief = font.render(text, True, (125, 128, 148))
+    label = pg.transform.rotate(label, -8)
+    relief = pg.transform.rotate(relief, -8)
+    rect = label.get_rect(center=(155, 63))
+    image.blit(relief, rect.move(1, 2))
+    image.blit(label, rect)
+    return image

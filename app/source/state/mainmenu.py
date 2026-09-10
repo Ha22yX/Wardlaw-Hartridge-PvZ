@@ -4,6 +4,7 @@ import pygame as pg
 
 from .. import constants as c
 from .. import tool
+from ..component import pvz_ui
 
 
 class Menu(tool.State):
@@ -69,6 +70,27 @@ class Menu(tool.State):
         self.littleGame_rect.y = 175
         self.littleGame_highlight_time = 0
 
+        # Reuse the mini-game plaque; this entry only explains existing keys.
+        self.cheat_frames = [
+            pvz_ui.stone_menu_button(frame, '作弊菜单', bool(index))
+            for index, frame in enumerate(self.littleGame_frames)
+        ]
+        self.cheat_image = self.cheat_frames[0]
+        self.cheat_rect = self.cheat_image.get_rect(topleft=(397, 310))
+        self.cheat_highlight_time = -100
+        self.cheat_menu_open = False
+        self.cheat_panel_rect = pg.Rect(150, 115, 500, 370)
+        self.cheat_close_rect = pg.Rect(310, 416, 180, 42)
+        self.cheat_title_font = pg.font.Font(c.FONT_PATH, 30)
+        self.cheat_font = pg.font.Font(c.FONT_PATH, 23)
+        self.cheat_note_font = pg.font.Font(c.FONT_PATH, 17)
+        self.cheat_rows = (
+            ('9', '增加 100 阳光'),
+            ('0', '清空所有植物卡片冷却'),
+            ('-', '切换到上一关'),
+            ('=', '切换到下一关'),
+        )
+
         # 退出按钮
         exit_frame_rect = (0, 0, 47, 27)
         self.exit_frames = [
@@ -122,6 +144,8 @@ class Menu(tool.State):
         # 高亮小游戏按钮
         elif self.inArea(self.littleGame_rect, x, y):
             self.littleGame_highlight_time = self.current_time
+        elif self.inArea(self.cheat_rect, x, y):
+            self.cheat_highlight_time = self.current_time
         # 高亮退出按钮
         elif self.inArea(self.exit_rect, x, y):
             self.exit_highlight_time = self.current_time
@@ -148,6 +172,32 @@ class Menu(tool.State):
         self.help_image = self.chooseHilightImage(
             self.help_hilight_time, self.help_frames
         )
+        self.cheat_image = self.chooseHilightImage(
+            self.cheat_highlight_time, self.cheat_frames
+        )
+
+    def handle_key(self, event):
+        if self.cheat_menu_open:
+            if event.key == pg.K_ESCAPE:
+                self.cheat_menu_open = False
+                c.SOUND_BUTTON_CLICK.play()
+            return True
+
+    def drawCheatMenu(self, surface):
+        shade = pg.Surface(c.SCREEN_SIZE, pg.SRCALPHA)
+        shade.fill((0, 0, 0, 130))
+        surface.blit(shade, (0, 0))
+        surface.blit(pvz_ui.paper_panel(self.cheat_panel_rect.size), self.cheat_panel_rect)
+        title = self.cheat_title_font.render('作弊菜单', True, (54, 71, 38))
+        surface.blit(title, title.get_rect(center=(400, 153)))
+        for index, (key, description) in enumerate(self.cheat_rows):
+            y = 187 + index * 47
+            pvz_ui.draw_button(surface, pg.Rect(185, y, 62, 36), key, self.cheat_font)
+            label = self.cheat_font.render(description, True, (54, 61, 39))
+            surface.blit(label, (265, y + 4))
+        note = self.cheat_note_font.render('进入关卡后按键生效；切关不算通关。', True, (87, 93, 60))
+        surface.blit(note, note.get_rect(center=(400, 388)))
+        pvz_ui.draw_button(surface, self.cheat_close_rect, '返回主菜单', self.cheat_font)
 
     def chooseHilightImage(self, hilightTime: int, frames):
         if (self.current_time - hilightTime) < 80:
@@ -313,6 +363,7 @@ class Menu(tool.State):
         surface.blit(self.bg_image, self.bg_rect)
         surface.blit(self.adventure_image, self.adventure_rect)
         surface.blit(self.littleGame_image, self.littleGame_rect)
+        surface.blit(self.cheat_image, self.cheat_rect)
         surface.blit(self.exit_image, self.exit_rect)
         surface.blit(self.option_button_image, self.option_button_rect)
         surface.blit(self.help_image, self.help_rect)
@@ -331,6 +382,12 @@ class Menu(tool.State):
                 self.adventure_image = self.adventure_frames[0]
             if (self.current_time - self.adventure_start) > 3200:
                 self.done = True
+        elif self.cheat_menu_open:
+            self.drawCheatMenu(surface)
+            # Consume modal clicks, including clicks on the menu behind it.
+            if mouse_pos and self.inArea(self.cheat_close_rect, *mouse_pos):
+                self.cheat_menu_open = False
+                c.SOUND_BUTTON_CLICK.play()
         # 点到选项按钮后显示菜单
         elif self.option_button_clicked:
             surface.blit(self.big_menu, self.big_menu_rect)
@@ -390,6 +447,10 @@ class Menu(tool.State):
                     self.respondAdventureClick()
                 elif self.inArea(self.littleGame_rect, *mouse_pos):
                     self.respondLittleGameClick()
+                elif self.inArea(self.cheat_rect, *mouse_pos):
+                    self.cheat_menu_open = True
+                    c.SOUND_BUTTON_CLICK.play()
+                    self.drawCheatMenu(surface)
                 elif self.inArea(self.option_button_rect, *mouse_pos):
                     self.respondOptionButtonClick()
                 elif self.inArea(self.exit_rect, *mouse_pos):

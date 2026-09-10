@@ -72,6 +72,39 @@ def integration():
             game.state.startup(bridge.game_ms, game.game_info)
             tick()
             return game.state
+        menu = game.state
+        tick()
+        assert [row[0] for row in menu.cheat_rows] == ['9', '0', '-', '=']
+        assert menu.cheat_rect.top >= menu.littleGame_rect.bottom
+        assert menu.cheat_rect.bottom < menu.option_button_rect.top
+        captures = os.environ.get('PVZ_TEST_CAPTURE_DIR')
+        if captures:
+            Path(captures).mkdir(parents=True, exist_ok=True)
+            pg.image.save(game.screen, str(Path(captures) / 'menu.png'))
+        menu.checkHilight(*menu.cheat_rect.center)
+        assert menu.cheat_image is menu.cheat_frames[1]
+        menu.current_time += 100
+        menu.checkHilight(0, 0)
+        assert menu.cheat_image is menu.cheat_frames[0]
+        bridge.action({'action': 'pointer', 'point': menu.cheat_rect.center})
+        tick()
+        assert menu.cheat_menu_open and not menu.done
+        if captures:
+            pg.image.save(game.screen, str(Path(captures) / 'cheats.png'))
+        for rect in (menu.adventure_rect, menu.littleGame_rect, menu.option_button_rect):
+            bridge.action({'action': 'pointer', 'point': rect.center})
+            tick()
+            assert menu.cheat_menu_open and not menu.done
+            assert not menu.adventure_clicked and not menu.option_button_clicked
+        bridge.action({'action': 'pointer', 'point': menu.cheat_close_rect.center})
+        tick()
+        assert not menu.cheat_menu_open and not menu.done
+        bridge.action({'action': 'pointer', 'point': menu.cheat_rect.center})
+        tick()
+        pg.event.post(pg.event.Event(pg.KEYDOWN, key=pg.K_ESCAPE))
+        tick()
+        assert not menu.cheat_menu_open
+        print('PASS cheat-menu single-click open/close, hover, modal isolation, Escape, four key descriptions')
         for stage, cards in enumerate((2, 4, 6, 10, 10), 1):
             scene = start(stage)
             assert len(bridge.last_state['cards']) == cards
