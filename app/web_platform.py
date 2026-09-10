@@ -51,7 +51,9 @@ class BrowserPlatform:
 
     def notify(self, kind, payload):
         if self.window is not None:
-            self.window.pvzReceive(kind, json.dumps(payload, ensure_ascii=False))
+            # The WASM bridge may reinterpret UTF-8 as Latin-1: transfer ASCII
+            # JSON escapes and let the browser decode Chinese exactly once.
+            self.window.pvzReceive(kind, json.dumps(payload, ensure_ascii=True))
 
     def status(self, text):
         self.notify("status", text)

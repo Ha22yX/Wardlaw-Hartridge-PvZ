@@ -15,8 +15,67 @@ function enqueue(action, extra = {}) {
   return true;
 }
 window.pvzDrain = () => JSON.stringify(queue.splice(0, 50));
-window.pvzVisible = () => !document.hidden &&
+let pageFocused = document.hasFocus();
+window.pvzVisible = () => !document.hidden && pageFocused && document.hasFocus() &&
   !byId("help-dialog").open && !byId("details-dialog").open;
+
+// Both SDL/WebAudio effects and Pygbag's detached HTMLAudio music must stop
+// immediately on blur, before background-tab timer throttling takes effect.
+const gameAudio = new Set(), pendingAudio = new Set(), gameContexts = new Set();
+const nativePlay = HTMLMediaElement.prototype.play;
+const nativePause = HTMLMediaElement.prototype.pause;
+const audioAllowed = () => window.pvzStartRequested && window.pvzVisible();
+HTMLMediaElement.prototype.play = function () {
+  gameAudio.add(this);
+  if (!audioAllowed()) { pendingAudio.add(this); return Promise.resolve(); }
+  pendingAudio.delete(this);
+  return nativePlay.call(this);
+};
+HTMLMediaElement.prototype.pause = function () {
+  pendingAudio.delete(this);
+  return nativePause.call(this);
+};
+for (const key of ["AudioContext", "webkitAudioContext"]) {
+  const NativeContext = window[key];
+  if (!NativeContext) continue;
+  window[key] = new Proxy(NativeContext, {construct(Target, args) {
+    const context = new Target(...args);
+    gameContexts.add(context);
+    context.addEventListener("statechange", () => {
+      if (!audioAllowed() && context.state === "running") context.suspend().catch(() => {});
+    });
+    return context;
+  }});
+}
+function syncAudio() {
+  if (!audioAllowed()) {
+    for (const media of gameAudio) {
+      if (!media.paused && !media.ended) pendingAudio.add(media);
+      nativePause.call(media);
+    }
+    for (const context of gameContexts)
+      if (context.state === "running") context.suspend().catch(() => {});
+  } else {
+    for (const media of pendingAudio) nativePlay.call(media).catch(() => {});
+    pendingAudio.clear();
+    for (const context of gameContexts)
+      if (context.state === "suspended") context.resume().catch(() => {});
+  }
+}
+window.addEventListener("blur", () => { pageFocused = false; syncAudio(); }, {signal});
+window.addEventListener("focus", () => { pageFocused = true; syncAudio(); }, {signal});
+window.addEventListener("pagehide", () => { pageFocused = false; syncAudio(); }, {signal});
+window.addEventListener("pageshow", () => { pageFocused = document.hasFocus(); syncAudio(); }, {signal});
+document.addEventListener("visibilitychange", syncAudio, {signal});
+function fitGame() {
+  const viewport = window.visualViewport;
+  const width = Math.min(viewport?.width || innerWidth, (viewport?.height || innerHeight) * 4 / 3);
+  byId("game-viewport").style.setProperty("width", width + "px", "important");
+  byId("game-viewport").style.setProperty("height", width * 3 / 4 + "px", "important");
+}
+window.addEventListener("resize", fitGame, {signal});
+window.visualViewport?.addEventListener("resize", fitGame, {signal});
+fitGame();
 window.pvzLoadSave = () => {
   try {
     saved = localStorage.getItem(saveKey);
@@ -38,12 +97,16 @@ function downloadSave(value) {
 window.pvzReceive = (kind, encoded) => {
   let data;
   try { data = JSON.parse(encoded); } catch { return; }
-  if (kind === "status") byId("boot-status").textContent = data;
+  if (kind === "status") {
+    byId("boot-status").textContent = data;
+    if (started && !ready) byId("start-button").textContent = data;
+  }
   if (kind === "progress") byId("boot-progress").value = data;
   if (kind === "warning") warning(data);
   if (kind === "failure") {
     byId("boot-screen").hidden = false;
-    byId("boot-status").textContent = "游戏未能启动。请检查网络后重试；浏览器存档不会被删除。";
+    byId("boot-screen").classList.add("failed");
+    byId("boot-status").textContent = "游戏启动失败：" + String(data).trim().split("\n").at(-1);
     byId("retry-button").hidden = false;
     byId("start-button").hidden = true;
     console.error(data);
@@ -138,9 +201,12 @@ for (const button of document.querySelectorAll("[data-action]"))
   button.addEventListener("click", () => enqueue(button.dataset.action), {signal});
 byId("start-button").addEventListener("click", () => {
   started = true;
+  pageFocused = document.hasFocus();
   if (window.MM) window.MM.UME = true;
   window.pvzStartRequested = true;
+  syncAudio();
   byId("start-button").textContent = "正在开启，请稍候…";
+  byId("start-button").disabled = true;
   // SDL's own user-engagement handler receives this real pointer gesture.
 }, {signal});
 byId("retry-button").addEventListener("click", () => location.reload(), {signal});
@@ -214,7 +280,10 @@ if (modelContext?.registerTool) {
     description: "Read the real browser game's current scene, cards, sun, guide and rewards.",
     inputSchema: {type: "object", properties: {}, additionalProperties: false},
     annotations: {readOnlyHint: true},
-    execute: () => ({ready, state: latest})
+    execute: () => ({ready, state: latest, background: !window.pvzVisible(),
+      audio: {allowed: Boolean(audioAllowed()),
+        playing: [...gameAudio].filter(media => !media.paused && !media.ended).length,
+        contexts: [...gameContexts].map(context => context.state)}})
   }, {
     name: "select_plant_card", title: "选择植物卡片",
     description: "Select a current card through the same game click as the visible card bar; this does not plant it.",

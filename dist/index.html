@@ -20,7 +20,7 @@
 </head>
 <body>
   <main id="game-shell" aria-label="人像草坪保卫战">
-    <div class="browser-tools">
+    <div class="browser-tools" hidden>
       <span id="game-title">人像草坪保卫战</span>
       <div class="tools">
         <button id="sound-button" aria-label="切换声音" title="声音">声音：开</button>
@@ -35,7 +35,7 @@
         <div class="boot-panel">
           <p id="boot-status" role="status">完整游戏正在加载，首次打开需要下载素材。</p>
           <progress id="boot-progress" max="100" value="0"></progress>
-          <button id="start-button">点击开启游戏与声音</button>
+          <button id="start-button">点击开启声音</button>
           <button id="retry-button" hidden>重新加载</button>
         </div>
       </div>
@@ -89,10 +89,11 @@
   <div id="transfer" hidden><span id="status"></span><progress id="progress"></progress></div>
   <div id="infobox" hidden></div><div id="html" hidden></div>
   <div id="pyconsole" hidden><div id="terminal"></div></div>
+  <pre id="stdout" hidden aria-hidden="true"></pre>
   <div id="system" hidden></div><div id="info" hidden></div><div id="box" hidden></div>
   <canvas id="canvas3d" width="800" height="600" hidden></canvas>
   <script src="https://pygame-web.github.io/cdn/0.9.3/pythons.js" type="module" id="site"
-    data-python="python3.12" data-LINES="0" data-COLUMNS="0" data-os="vtx,snd,gui" async defer>#<!--
+    data-python="python3.12" data-LINES="0" data-COLUMNS="0" data-os="stdout,snd,gui" async defer>#<!--
 import asyncio
 import json
 import platform
@@ -104,6 +105,9 @@ async def custom_site():
     try:
         appdir = Path("/data/data/pypvz")
         appdir.mkdir(parents=True, exist_ok=True)
+        # Pygbag defaults to credentials=omit, which breaks private same-origin
+        # asset requests. Keep site cookies local; never send them to the CDN.
+        platform.fopen.flags = platform.ffi({"redirect": "follow", "credentials": "same-origin"})
         async with platform.fopen("asset-packs.json", "r") as handle:
             packs = json.loads(handle.read())
         for index, pack in enumerate(packs["packs"]):
@@ -119,7 +123,7 @@ async def custom_site():
         __import__(__name__).__file__ = main
         platform.window.pvzReceive("status", json.dumps("素材已就绪，点击画面开启游戏与声音。"))
         platform.window.pvzReceive("progress", "90")
-        while not (platform.window.MM.UME or platform.window.pvzStartRequested):
+        while not platform.window.pvzStartRequested:
             await asyncio.sleep(.1)
         await TopLevel_async_handler.start_toplevel(platform.shell, console=False)
         await shell.source(main)

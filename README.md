@@ -13,9 +13,19 @@
 - `app/main.py`：异步浏览器主循环，原 50 逻辑帧率，保留游戏原有二倍速。
 - `app/web_platform.py`：浏览器存档、触屏点击、声音、页面可见性。
 - `source/tool.py` 仅新增时钟接口，并让 CSS 管理画面缩放。
-- 手机端增加原素材的大卡片操作栏；长按 0.5 秒看介绍。电脑原卡栏不变。
+- 正式入口只显示原游戏和首次开启声音按钮，不显示外围工具栏。电脑和手机都保留完整原卡栏、菜单和棋盘。
 - 进度存储在当前浏览器，可导入/导出原 JSON 存档。不会修改桌面版存档。
 - 浏览器首次播放音频需要用户手势；首次打开需下载完整素材和运行环境。
+- 窗口失焦或标签页隐藏时，同时暂停模拟、HTMLAudio 音乐与 WebAudio 音效。
+- WASM / JavaScript 之间采用 ASCII JSON 转义，修复加载文字与卡片说明的中文乱码。
+
+## 正式托管
+
+正式地址：https://pvz.rosebeg.com/ 。运行在用户的宝塔/Nginx 服务器，静态根目录为 `/www/wwwroot/pvz.rosebeg.com/current`。
+HTTPS 由 Let's Encrypt 签发，通过现有 `certbot-renew.timer` 自动续期。
+人工 SSH 检查入口：`/usr/local/sbin/pvz-renew-ssl.sh --dry-run --run-deploy-hooks --no-random-sleep-on-renew`。
+站点级续期钩子：`/etc/letsencrypt/renewal-hooks/deploy/50-pvz-nginx`；只有该证书成功续期后才检查并重载 Nginx。
+该次部署未修改任何 SSH 登录凭据，也未使用或公开宝塔接口密钥。
 
 ## 本地运行 / 更新
 
@@ -33,7 +43,8 @@ uv run python tools/test_migration.py
 ```
 
 以上测试校验源码/素材一致性、五关场景、真实教学种植、单击加速、全部小游戏启动和存档。
-浏览器运行、音频及移动设备的实际游玩需要另行实测；静态检查不等于浏览器验证。
+2026-09-10 已在正式域名实测浏览器启动、第一关七步教学、中文、两种植物的真实种植，并检查横竖屏尺寸。
+音频生命周期另有隔离测试；未声称在每种真实手机或浏览器上全部通关。
 WebMCP 为支持浏览器提供读取游戏状态和选择卡片工具，不替代可见游戏操作。
 
 ## 来源
