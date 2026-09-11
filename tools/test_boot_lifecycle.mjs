@@ -3,6 +3,16 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
+const html = fs.readFileSync(new URL('../dist/index.html', import.meta.url), 'utf8');
+const css = fs.readFileSync(new URL('../dist/web.css', import.meta.url), 'utf8');
+assert.match(html, /id="start-button">加载游戏<\/button>/);
+assert.match(html, /<canvas[^>]*id="canvas"[^>]*inert/);
+const initialMask = css.match(/#boot-screen::after\s*\{([^}]+)\}/)[1];
+assert.match(initialMask, /display:\s*block/);
+assert.match(initialMask, /inset:\s*0/);
+assert.match(initialMask, /background:\s*#0009/);
+assert.match(css, /#boot-screen\s*\{[^}]*position:\s*fixed[^}]*inset:\s*0/);
+
 function makeApp() {
   const events = new Map(), elements = new Map();
   const on = (target, type, fn) => {

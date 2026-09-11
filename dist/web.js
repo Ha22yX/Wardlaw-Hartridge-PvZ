@@ -240,7 +240,7 @@ byId("start-button").addEventListener("click", () => {
   if (window.MM) window.MM.UME = true;
   window.pvzStartRequested = true;
   syncAudio();
-  byId("start-button").textContent = "正在开启，请稍候…";
+  byId("start-button").textContent = "正在加载，请稍候…";
   byId("start-button").disabled = true;
   byId("start-button").blur();
   // SDL's own user-engagement handler receives this real pointer gesture.
