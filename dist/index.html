@@ -31,13 +31,15 @@
     <div id="game-viewport">
       <canvas id="canvas" width="800" height="600" tabindex="-1" inert aria-busy="true" aria-label="游戏画面：点击卡片，再点击草坪种植"></canvas>
       <div id="boot-screen" aria-label="游戏加载">
-        <img src="menu-preview.png" alt="原游戏主菜单" width="800" height="600">
+        <div class="boot-content">
+        <img id="boot-cover" src="custom-cover-v2.png" alt="自定义人物植物对战普通与强壮自定义僵尸的游戏封面" width="1536" height="1024" fetchpriority="high">
         <div class="boot-panel">
           <p id="boot-status" role="status">正在准备游戏运行环境…</p>
           <progress id="boot-progress" max="100" value="0" aria-label="游戏加载进度"></progress>
           <p id="boot-percent">0%</p>
-          <button id="start-button">加载游戏</button>
+          <button id="start-button">Start the game</button>
           <button id="retry-button" hidden>重新加载</button>
+        </div>
         </div>
       </div>
       <div id="game-ended" class="boot-panel" hidden>
@@ -93,8 +95,8 @@
   <pre id="stdout" hidden aria-hidden="true"></pre>
   <div id="system" hidden></div><div id="info" hidden></div><div id="box" hidden></div>
   <canvas id="canvas3d" width="800" height="600" hidden></canvas>
-  <script src="https://pygame-web.github.io/cdn/0.9.3/pythons.js" type="module" id="site"
-    data-python="python3.12" data-LINES="0" data-COLUMNS="0" data-os="stdout,snd,gui" async defer>#<!--
+  <script type="text/plain" id="runtime-source"
+    data-python="python3.12" data-LINES="0" data-COLUMNS="0" data-os="stdout,snd,gui">#<!--
 import asyncio
 import json
 import platform

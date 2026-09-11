@@ -231,6 +231,22 @@ function makeCard(card) {
 }
 for (const button of document.querySelectorAll("[data-action]"))
   button.addEventListener("click", () => enqueue(button.dataset.action), {signal});
+function loadGameRuntime() {
+  const source = byId("runtime-source");
+  const runtime = document.createElement("script");
+  runtime.id = "site";
+  runtime.type = "module";
+  runtime.src = "runtime/pythons.js";
+  for (const attribute of ["data-python", "data-lines", "data-columns", "data-os"])
+    runtime.setAttribute(attribute, source.getAttribute(attribute));
+  runtime.textContent = source.textContent;
+  runtime.addEventListener("error", () => window.pvzReceive("failure",
+    JSON.stringify("游戏运行环境下载失败，请检查网络后重新加载。")), {once: true});
+  // This module is only inserted from the real, explicit Start gesture.
+  // Do not let the late-created runtime require a second sound-unlock click.
+  window.config.ume_block = 0;
+  document.body.appendChild(runtime);
+}
 byId("start-button").addEventListener("click", () => {
   if (started || failed) return;
   started = true;
@@ -243,6 +259,7 @@ byId("start-button").addEventListener("click", () => {
   byId("start-button").textContent = "正在加载，请稍候…";
   byId("start-button").disabled = true;
   byId("start-button").blur();
+  loadGameRuntime();
   // SDL's own user-engagement handler receives this real pointer gesture.
 }, {signal});
 byId("retry-button").addEventListener("click", () => location.reload(), {signal});
