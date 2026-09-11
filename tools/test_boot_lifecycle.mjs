@@ -15,6 +15,16 @@ assert.match(initialMask, /display:\s*block/);
 assert.match(initialMask, /inset:\s*0/);
 assert.match(initialMask, /background:\s*#0009/);
 assert.match(css, /#boot-screen\s*\{[^}]*position:\s*fixed[^}]*inset:\s*0/);
+const coverFrame = css.match(/#boot-screen \.boot-content\s*\{([^}]+)\}/)[1];
+const coverImage = css.match(/#boot-screen #boot-cover\s*\{([^}]+)\}/)[1];
+const coverPanel = css.match(/#boot-screen \.boot-panel\s*\{([^}]+)\}/)[1];
+assert.match(coverFrame, /position:\s*relative/);
+assert.match(coverFrame, /aspect-ratio:\s*3\s*\/\s*2/);
+assert.doesNotMatch(coverFrame, /grid-template-rows|gap:/);
+assert.match(coverImage, /position:\s*absolute;\s*inset:\s*0/);
+assert.match(coverPanel, /position:\s*absolute;\s*top:\s*76%/);
+assert.match(coverPanel, /left:\s*50%;\s*transform:\s*translate\(-50%, -50%\)/);
+assert.doesNotMatch(css, /#boot-screen\.(?:loading|failed)[^{]*(?:\.boot-content|#boot-cover)\s*\{/);
 
 function makeApp() {
   const events = new Map(), elements = new Map(), scripts = [];

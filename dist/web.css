@@ -65,10 +65,11 @@ body { padding: 0; margin: 0; height: 100dvh; background: #000; display: block; 
 .boot-panel { border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0; }
 #boot-status, #boot-progress, #boot-percent { display: none; }
 #boot-screen { position: fixed; inset: 0; z-index: 1000; touch-action: none; background: #111c0e; display: grid; place-items: center; }
-#boot-screen .boot-content { width: min(96vw, 1200px); height: calc(100dvh - 32px); display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 16px; }
-#boot-screen #boot-cover { width: 100%; height: 100%; min-height: 0; object-fit: contain; }
+/* Fixed 3:2 artwork bounds: controls never participate in image layout. */
+#boot-screen .boot-content { position: relative; width: min(96vw, 1200px, calc((100dvh - 32px) * 1.5)); aspect-ratio: 3 / 2; }
+#boot-screen #boot-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 #boot-screen::after { content: ""; position: absolute; inset: 0; background: #0009; display: block; }
-#boot-screen .boot-panel { z-index: 1; position: relative; top: auto; bottom: auto; left: auto; transform: none; justify-self: center; }
+#boot-screen .boot-panel { z-index: 1; position: absolute; top: 76%; bottom: auto; left: 50%; transform: translate(-50%, -50%); max-height: 44%; overflow-y: auto; }
 #boot-screen.loading .boot-panel, #boot-screen.failed .boot-panel {
   padding: 20px; border: 3px solid #815331; border-radius: 9px;
   background: #efdfbb url("paper.png") center/100% 100%;
