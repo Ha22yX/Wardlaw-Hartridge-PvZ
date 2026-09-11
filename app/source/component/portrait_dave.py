@@ -13,7 +13,7 @@ CARDS = (c.GRINDEVOURER, c.GASSUNFLOWER)
 
 # The words describe the actual customized mechanics, not the vanilla plants.
 STEPS = (
-    ('邻居，先别急。', '我是这片草坪的戴夫。锅是头盔，不是晚饭。\n今天先学三件事：收阳光、选植物、守住这条路。'),
+    ('邻居，先别急。', '我是这片草坪的凯夫。锅是头盔，不是晚饭。\n今天先学三件事：收阳光、选植物、守住这条路。'),
     ('先把阳光收起来', '看到发光的头像了吗？那就是这里的阳光。\n单击它，收下 25 阳光。别光盯着他的脸。'),
     (f'选一株{c.PLANT_DISPLAY_NAMES[c.GRINDEVOURER]}', f'点上方亮起的{c.PLANT_DISPLAY_NAMES[c.GRINDEVOURER]}卡片，花费 100 阳光。\n选卡后再点草地；右键可以取消选择。'),
     ('种到亮起的格子', f'把{c.PLANT_DISPLAY_NAMES[c.GRINDEVOURER]}种在黄色框里。\n它会自动发射追踪子弹，不用你手动瞄准。'),
@@ -185,7 +185,7 @@ class FirstLawnGuide:
 
         panel = pg.Rect(224, 423, 560, 167)
         surface.blit(paper_panel(panel.size), panel)
-        surface.blit(self.small.render(f'自定义戴夫    {self.step + 1} / {len(self.steps)}', True, (82, 108, 52)), (245, 436))
+        surface.blit(self.small.render(f'凯夫    {self.step + 1} / {len(self.steps)}', True, (82, 108, 52)), (245, 436))
         title, body = self.steps[self.step]
         surface.blit(self.title_font.render(title, True, (41, 57, 30)), (244, 459))
         chars = len(body) if self.revealed else max(0, int((self.now - self.step_started) / 32))
@@ -210,7 +210,7 @@ class StageIntro(FirstLawnGuide):
         from .custom_campaign import INTROS
         super().__init__(scene, now)
         self.steps = INTROS[stage]
-        self.heading = f'第 {stage} 关 · 戴夫介绍'
+        self.heading = f'第 {stage} 关 · 凯夫介绍'
 
     def target_rect(self, scene):
         return None
