@@ -134,7 +134,7 @@ DESCRIPTIONS = {
     c.PORTRAITPOTATOMINE: (c.PLANT_DISPLAY_NAMES[c.PORTRAITPOTATOMINE], ('埋入地下，约 15 秒后准备完成。', '成熟后被踩中造成 1800 伤害。', '未成熟时会被吃掉，请提前布置。')),
     c.HEADPHONEBOXER: (c.PLANT_DISPLAY_NAMES[c.HEADPHONEBOXER], ('同一行近战连击：20 / 20 / 40。', '前方攻击距离 220，可隔坚果打击。', '搭配坚果可以安全持续输出。')),
     c.PORTRAITSQUASH: (c.PLANT_DISPLAY_NAMES[c.PORTRAITSQUASH], ('发现附近僵尸后急眼、跳起砸下。', '落地对同一行附近敌人造成 1800。', '一次性使用，适合紧急救场。')),
-    c.PORTRAITHEALER: (c.PLANT_DISPLAY_NAMES[c.PORTRAITHEALER], ('种下 2 秒首疗，每 15 秒治疗 3×3。', '恢复最大血量 25%，每株上限 150。', '同株 15 秒内不叠加治疗，不复活。')),
+    c.PORTRAITHEALER: (c.PLANT_DISPLAY_NAMES[c.PORTRAITHEALER], ('种下 2 秒首疗，每 15 秒治疗 3×3。', '恢复每株最大血量 20%，不超过满血。', '同株 15 秒内不叠加治疗，不复活。')),
     c.PORTRAITTHREEPEATER: (c.PLANT_DISPLAY_NAMES[c.PORTRAITTHREEPEATER], ('同时射击本行及相邻的上下两行。', '每 1.4 秒一轮，每颗豌豆伤害 20。', '边缘处不会向草坪外发射。')),
 }
 

@@ -676,8 +676,7 @@ class PortraitHealer(Plant):
                 if now < getattr(target, 'next_portrait_heal', 0):
                     continue
                 before = target.health
-                amount = target.heal(min(target.max_health * c.PORTRAITHEALER_FRACTION,
-                                         c.PORTRAITHEALER_MAX_HEAL))
+                amount = target.heal(target.max_health * c.PORTRAITHEALER_FRACTION)
                 if amount:
                     target.next_portrait_heal = now + c.PORTRAITHEALER_RECIPIENT_COOLDOWN
                     from .plant_layout import root as visual_root
