@@ -8,8 +8,19 @@ const window = {pvzStartRequested:false, addEventListener(name, handler) {
 }};
 class Media {
   paused=true; ended=false;
-  play() {this.paused=false; return Promise.resolve();}
-  pause() {this.paused=true;}
+  deferPlay=false; pending=[]; failure=null;
+  play() {
+    this.paused=false;
+    if (this.failure) return Promise.reject(this.failure);
+    if (this.deferPlay) return new Promise((resolve, reject) => this.pending.push({resolve, reject}));
+    return Promise.resolve();
+  }
+  pause() {
+    this.paused=true;
+    for (const {reject} of this.pending.splice(0)) reject(Object.assign(
+      new Error('The play() request was interrupted by a call to pause().'), {name:'AbortError'}));
+  }
+  finishPlay() {for (const {resolve} of this.pending.splice(0)) resolve();}
 }
 class Context {
   state='suspended';
@@ -53,4 +64,34 @@ await music.play();
 emit('pagehide');
 assert.equal(music.paused, true);
 assert.equal(audio.state, 'suspended');
-console.log('PASS sound gesture, blur, hidden page, blocked background playback, resume and page exit');
+emit('focus');
+// Model rapid level music replacements. The native caller intentionally does
+// not await play(), just as Pygbag does. Previously these reached its alert().
+const unhandled = [];
+const onUnhandled = reason => unhandled.push(reason);
+process.on('unhandledRejection', onUnhandled);
+const jumpingMusic = new Media();
+jumpingMusic.deferPlay = true;
+for (let i=0; i<100; i++) {
+  void jumpingMusic.play();
+  jumpingMusic.pause();
+}
+void jumpingMusic.play();
+emit('blur'); // Cancel an in-flight play on backgrounding too.
+await new Promise(resolve => setImmediate(resolve));
+assert.deepEqual(unhandled, [], 'expected playback cancellations must never reach the runtime alert');
+assert.equal(jumpingMusic.paused, true);
+emit('focus');
+jumpingMusic.finishPlay();
+await Promise.resolve();
+assert.equal(jumpingMusic.paused, false, 'the current track still resumes normally');
+jumpingMusic.pause();
+emit('blur');
+emit('focus');
+assert.equal(jumpingMusic.paused, true, 'stopped old music must not be resurrected');
+const brokenMusic = new Media();
+brokenMusic.failure = Object.assign(new Error('Invalid audio data'), {name:'NotSupportedError'});
+await assert.rejects(brokenMusic.play(), error => error === brokenMusic.failure,
+  'real playback errors must not be swallowed');
+process.removeListener('unhandledRejection', onUnhandled);
+console.log('PASS audio lifecycle, 100 rapid play/pause cancellations, background cancellation, current-track resume, real error propagation');

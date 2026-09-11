@@ -50,7 +50,13 @@ HTMLMediaElement.prototype.play = function () {
   gameAudio.add(this);
   if (!audioAllowed()) { pendingAudio.add(this); return Promise.resolve(); }
   pendingAudio.delete(this);
-  return nativePlay.call(this);
+  // SDL/Pygbag does not await music play(). Changing levels or hiding the
+  // page can pause it before playback starts. That cancellation is normal,
+  // not an unhandled rejection for the runtime's blocking error dialog.
+  return Promise.resolve(nativePlay.call(this)).catch(error => {
+    if (error?.name === "AbortError") return;
+    throw error; // Keep real decode/network/programming failures observable.
+  });
 };
 HTMLMediaElement.prototype.pause = function () {
   pendingAudio.delete(this);

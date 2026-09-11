@@ -97,5 +97,28 @@ with tempfile.TemporaryDirectory(prefix='campaign-clock-test-') as tmp:
         scene.campaign.update(scene, deadline)
         assert scene.campaign.wave == 1
         assert sum(map(len, scene.zombie_groups)) == 1
-    print('PASS +/- jump clock, immediate planting darkening, rapid clicks at 2x, zero-key reset, every card cooldown boundary, guide freeze, exact 20-second endless start')
+    # Drain a burst exactly like SDL's keyboard event loop, including presses
+    # beyond the first-stage boundary. Boundary presses must not restart it.
+    scene = level.Level()
+    game.game_info.update({c.GAME_MODE: c.MODE_ADVENTURE, c.LEVEL_NUM: 5})
+    scene.startup(1000, game.game_info)
+    game.state = scene
+    pg.event.clear()
+    for _ in range(104):
+        pg.event.post(pg.event.Event(pg.KEYDOWN, key=pg.K_MINUS, mod=0))
+    game.event_loop()
+    scene.update(game.screen, 1000, None, [False, False])
+    assert scene.game_info[c.LEVEL_NUM] == 1
+    assert len(scene.menubar.card_list) == 2
+    guide, campaign, cards = scene.first_lawn_guide, scene.campaign, scene.menubar
+    assert guide.active and campaign.wave == 0
+    for _ in range(100):
+        pg.event.post(pg.event.Event(pg.KEYDOWN, key=pg.K_MINUS, mod=0))
+    game.event_loop()
+    assert scene.first_lawn_guide is guide and scene.campaign is campaign
+    assert scene.menubar is cards and scene.game_info[c.LEVEL_NUM] == 1
+    scene.handle_key(pg.event.Event(pg.KEYDOWN, key=pg.K_EQUALS, mod=0))
+    assert scene.game_info[c.LEVEL_NUM] == 2
+    assert len(scene.menubar.card_list) == 4
+    print('PASS +/- clock, cooldowns, 20-second endless start, 204 rapid minus events to stage 1, stable boundary and return to stage 2')
 pg.quit()
