@@ -9,7 +9,7 @@ ROOT = (80, 166)
 
 
 def install_assets(graphics):
-    path = Path(__file__).resolve().parents[2] / 'resources/generated_sources/portrait_chomper_sheet.png'
+    path = Path(__file__).resolve().parents[2] / 'resources/generated_sources/portrait_chomper_glasses_v2.png'
     sheet = pg.image.load(str(path)).convert_alpha()
     background = pg.mask.from_threshold(sheet, (0, 0, 0), (12, 12, 12, 255))
     background.connected_component((0, 0)).to_surface(
