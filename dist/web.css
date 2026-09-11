@@ -68,6 +68,14 @@ body { padding: 0; margin: 0; height: 100dvh; background: #000; display: block; 
 /* Fixed 3:2 artwork bounds: controls never participate in image layout. */
 #boot-screen .boot-content { position: relative; width: min(96vw, 1200px, calc((100dvh - 32px) * 1.5)); aspect-ratio: 3 / 2; }
 #boot-screen #boot-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+#boot-characters { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+#boot-screen .cover-character { position: absolute; width: auto; object-fit: contain; transform: translateX(-50%); }
+#boot-screen .cover-nut { left: 14%; bottom: 29%; height: 39%; }
+#boot-screen .cover-shooter { left: 37%; bottom: 26%; height: 36%; }
+#boot-screen .cover-elite { left: 85%; bottom: 27%; height: 44%; }
+#boot-screen .cover-sun { left: 10%; bottom: 1%; height: 40%; }
+#boot-screen .cover-chomper { left: 29%; bottom: 7%; height: 40%; }
+#boot-screen .cover-zombie { left: 78%; bottom: 0; height: 46%; }
 #boot-screen::after { content: ""; position: absolute; inset: 0; background: #0009; display: block; }
 #boot-screen .boot-panel { z-index: 1; position: absolute; top: 76%; bottom: auto; left: 50%; transform: translate(-50%, -50%); max-height: 44%; overflow-y: auto; }
 #boot-screen.loading .boot-panel, #boot-screen.failed .boot-panel {

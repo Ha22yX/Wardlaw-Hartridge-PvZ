@@ -8,7 +8,12 @@ const css = fs.readFileSync(new URL('../dist/web.css', import.meta.url), 'utf8')
 assert.match(html, /id="start-button">Start the game<\/button>/);
 assert.match(html, /type="text\/plain" id="runtime-source"/);
 assert.doesNotMatch(html, /<script[^>]+src="[^"]*pythons.js/);
-assert.match(html, /id="boot-cover" src="custom-cover-v2.png"/);
+assert.match(html, /id="boot-cover" src="custom-cover-scene-v3.png"/);
+assert.match(html, /id="boot-characters" aria-hidden="true"/);
+for (const name of ['sun', 'nut', 'shooter', 'chomper', 'zombie', 'elite']) {
+  assert.ok(html.includes(`src="cover-actors/${name}.png"`));
+  assert.ok(fs.statSync(new URL(`../dist/cover-actors/${name}.png`, import.meta.url)).size > 0);
+}
 assert.match(html, /<canvas[^>]*id="canvas"[^>]*inert/);
 const initialMask = css.match(/#boot-screen::after\s*\{([^}]+)\}/)[1];
 assert.match(initialMask, /display:\s*block/);

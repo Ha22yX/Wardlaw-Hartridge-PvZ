@@ -63,6 +63,17 @@ def export_interface_assets():
     (DIST / "cards").mkdir(exist_ok=True)
     for _, key, _, _ in c.PLANT_CARD_INFO:
         pg.image.save(tool.GFX[key], DIST / "cards" / f"{key}.png")
+    # Cover actors are verbatim game frames, not AI reinterpretations of faces.
+    # Keep separate transparent images so layout cannot redraw facial features.
+    actors = {'sun': c.GASSUNFLOWER, 'nut': c.PORTRAITTALLNUT,
+              'shooter': c.GRINDEVOURER, 'chomper': c.PORTRAITCHOMPER,
+              'zombie': c.PORTRAIT_ZOMBIE, 'elite': c.ELITE_PORTRAIT_ZOMBIE}
+    (DIST / 'cover-actors').mkdir(exist_ok=True)
+    for label, key in actors.items():
+        frame = tool.GFX[key][0]
+        target = DIST / 'cover-actors' / f'{label}.png'
+        pg.image.save(frame, target)
+        assert pg.image.tobytes(pg.image.load(target), 'RGBA') == pg.image.tobytes(frame, 'RGBA')
     pg.image.save(tool.GFX[c.UNIVERSAL_BUTTON], DIST / "button.png")
     pg.image.save(paper_panel((548, 265)), DIST / "paper.png")
     pg.image.save(pg.image.load(APP / "pypvz-exec-logo.png"), DIST / "favicon.png")

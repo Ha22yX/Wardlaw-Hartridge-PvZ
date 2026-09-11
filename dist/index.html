@@ -32,7 +32,15 @@
       <canvas id="canvas" width="800" height="600" tabindex="-1" inert aria-busy="true" aria-label="游戏画面：点击卡片，再点击草坪种植"></canvas>
       <div id="boot-screen" aria-label="游戏加载">
         <div class="boot-content">
-        <img id="boot-cover" src="custom-cover-v2.png" alt="自定义人物植物对战普通与强壮自定义僵尸的游戏封面" width="1536" height="1024" fetchpriority="high">
+        <img id="boot-cover" src="custom-cover-scene-v3.png" alt="植物与僵尸对战封面，人物使用游戏内原角色素材" width="1536" height="1024" fetchpriority="high">
+        <div id="boot-characters" aria-hidden="true">
+          <img class="cover-character cover-nut" src="cover-actors/nut.png" alt="" width="110" height="148">
+          <img class="cover-character cover-shooter" src="cover-actors/shooter.png" alt="" width="160" height="156">
+          <img class="cover-character cover-elite" src="cover-actors/elite.png" alt="" width="152" height="184">
+          <img class="cover-character cover-sun" src="cover-actors/sun.png" alt="" width="112" height="144">
+          <img class="cover-character cover-chomper" src="cover-actors/chomper.png" alt="" width="160" height="170">
+          <img class="cover-character cover-zombie" src="cover-actors/zombie.png" alt="" width="112" height="160">
+        </div>
         <div class="boot-panel">
           <p id="boot-status" role="status">正在准备游戏运行环境…</p>
           <progress id="boot-progress" max="100" value="0" aria-label="游戏加载进度"></progress>
