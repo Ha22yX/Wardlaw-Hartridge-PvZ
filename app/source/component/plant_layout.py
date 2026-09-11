@@ -4,7 +4,7 @@ from .. import constants as c
 
 CUSTOM_NAMES = frozenset((c.GRINDEVOURER, c.GASSUNFLOWER, c.PORTRAITTALLNUT,
     c.PORTRAITCHERRYBOMB, c.HEADPHONEBOXER, c.PORTRAITPOTATOMINE,
-    c.PORTRAITSQUASH, c.PORTRAITHEALER, c.PORTRAITCHOMPER, c.PORTRAITTHREEPEATER))
+    c.PORTRAITSQUASH, c.PORTRAITHEALER, c.PORTRAITCHOMPER, c.PORTRAITTHREEPEATER, c.PORTRAITBOOMERANG))
 # Grid roots already sit 60% down each tile. Keep the leaves inside the lawn,
 # not against its lower edge. Enlargement remains anchored at the same root.
 ROOT_OFFSET = 8

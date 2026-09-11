@@ -964,6 +964,70 @@ class RepeaterPea(Plant):
             self.shoot_timer = self.current_time - 700
 
 
+class PortraitBoomerang(Plant):
+    CHARGE_MS = 350
+
+    def __init__(self, x, y, level):
+        super().__init__(x, y, c.PORTRAITBOOMERANG, c.PLANT_HEALTH, None)
+        self.level = level
+        self.col, self.row = level.map.getMapIndex(x, y)
+        self.attack_check = c.CHECK_ATTACK_NEVER
+        self.charge_at = None
+        self.next_throw = level.current_time
+        self.thrown_at = self.caught_at = None
+        self.projectile = None
+        self.phase = 'Idle'
+        self.neutral_mask = self.mask.copy()
+
+    def loadImages(self, name, scale):
+        self.frames = tool.GFX[name]
+
+    def has_targets(self):
+        return any(targetable(z) and not getattr(z, 'is_hypno', False)
+                   and 0 <= z.rect.centerx - self.rect.centerx <= c.PORTRAITBOOMERANG_RANGE
+                   for z in self.level.zombie_groups[self.row])
+
+    def update(self, info):
+        from .portrait_boomerang import ReturningBoomerang
+        now = self.current_time = info[c.CURRENT_TIME]
+        if not self.alive() or self.health <= 0 or self.state in (c.SLEEP, c.DIE):
+            return
+        flying = self.projectile is not None and self.projectile.alive()
+        if not flying and now >= self.next_throw:
+            if not self.has_targets():
+                self.charge_at = None
+            elif self.charge_at is None:
+                self.charge_at = now
+            elif now - self.charge_at >= self.CHARGE_MS:
+                self.projectile = ReturningBoomerang(self, now, tool.GFX)
+                self.level.bullet_groups[self.row].add(self.projectile)
+                self.thrown_at = now
+                self.next_throw = now + c.PORTRAITBOOMERANG_INTERVAL - self.CHARGE_MS
+                self.charge_at = None
+                flying = True
+                c.SOUND_SHOOT.play()
+        self.state = c.ATTACK if flying or self.charge_at is not None else c.IDLE
+        if flying:
+            age = now - self.thrown_at
+            phase, t = ('Throw', age / 300) if age < 300 else ('Wait', (age % 900) / 900)
+        elif self.caught_at is not None and now - self.caught_at < 350:
+            phase, t = 'Catch', (now - self.caught_at) / 350
+        elif self.charge_at is not None:
+            phase, t = 'Charge', (now - self.charge_at) / self.CHARGE_MS
+        else:
+            phase, t = 'Idle', (now % 2400) / 2400
+        self.phase = phase
+        self.frames = tool.GFX[self.name + phase]
+        self.frame_num = len(self.frames)
+        self.frame_index = min(self.frame_num - 1, max(0, int(t * self.frame_num)))
+        self.image = self.frames[self.frame_index].copy()
+        self.mask = self.neutral_mask
+        if now - self.hit_timer < 180:
+            self.image.fill((30, 10, 8, 0), special_flags=pg.BLEND_RGBA_ADD)
+        if now - self.highlight_time < 100:
+            self.image.set_alpha(150)
+
+
 class PortraitThreepeater(Plant):
     """Three human mouths shoot into the three adjacent, valid lawn lanes."""
     CHARGE_MS = 350

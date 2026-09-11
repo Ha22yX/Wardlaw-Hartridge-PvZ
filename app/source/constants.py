@@ -53,7 +53,7 @@ SCREEN_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
 
 # 选卡数量
 # 最大数量
-CARD_MAX_NUM = 10   # 这里以后可以增加解锁功能，从最初的6格逐渐解锁到10格
+CARD_MAX_NUM = 11   # Eleven compact slots within the original seed bank.
 # 最小数量
 CARD_LIST_NUM = CARD_MAX_NUM
 
@@ -240,7 +240,7 @@ PANEL_Y_START = 87
 PANEL_X_START = 22
 PANEL_Y_INTERNAL = 69
 PANEL_X_INTERNAL = 53
-BAR_CARD_X_INTERNAL = 51
+BAR_CARD_X_INTERNAL = 46
 
 # 植物卡片信息索引
 PLANT_NAME_INDEX = 0
@@ -389,6 +389,7 @@ PLANT_CARD_INFO = (  # 元组 (植物名称, 卡片名称, 阳光, 冷却时间)
     (PORTRAITHEALER := 'PortraitHealer', CARD_PORTRAITHEALER := 'card_portraithealer', 150, 15000),
     (PORTRAITCHOMPER := 'PortraitChomper', CARD_PORTRAITCHOMPER := 'card_portraitchomper', 175, 15000),
     (PORTRAITTHREEPEATER := 'PortraitThreepeater', CARD_PORTRAITTHREEPEATER := 'card_portraitthreepeater', 300, 7500),
+    (PORTRAITBOOMERANG := 'PortraitBoomerang', CARD_PORTRAITBOOMERANG := 'card_portraitboomerang', 175, 7500),
     # 应当保证这3个在一般模式下不可选的特殊植物恒在最后
     (WALLNUTBOWLING := 'WallNutBowling', CARD_WALLNUT := 'card_wallnut', 0, 0),
     (
@@ -427,6 +428,7 @@ PLANT_DISPLAY_NAMES = {
     PORTRAITSQUASH: '暴躁泰山',
     PORTRAITHEALER: '春风卷卷',
     PORTRAITTHREEPEATER: '三重奏藤',
+    PORTRAITBOOMERANG: '回头浪子',
 }
 
 TALL_BARRIER_PLANTS = frozenset((TALLNUT, PORTRAITTALLNUT))
@@ -446,6 +448,10 @@ PORTRAITHEALER_RECIPIENT_COOLDOWN = 15000
 PORTRAIT_PEA = 'PortraitPea'
 PORTRAITTHREEPEATER_INTERVAL = 1400
 PORTRAITTHREEPEATER_DAMAGE = 20
+PORTRAITBOOMERANG_DAMAGE = 20
+PORTRAITBOOMERANG_INTERVAL = 2500
+PORTRAITBOOMERANG_RANGE = 5 * GRID_X_SIZE
+BOOMERANG = 'PortraitBoomerangProjectile'
 
 
 # 植物集体属性集合

@@ -1268,6 +1268,8 @@ class Level(tool.State):
                 new_plant = plant.PortraitChomper(x, y, self)
             case c.PORTRAITTHREEPEATER:
                 new_plant = plant.PortraitThreepeater(x, y, self)
+            case c.PORTRAITBOOMERANG:
+                new_plant = plant.PortraitBoomerang(x, y, self)
             case c.SPIKEWEED:
                 new_plant = plant.Spikeweed(x, y)
             case c.JALAPENO:
@@ -1433,7 +1435,7 @@ class Level(tool.State):
     def checkBulletCollisions(self):
         for i in range(self.map_y_len):
             for bullet in self.bullet_groups[i]:
-                if bullet.name == c.FUME:
+                if bullet.name in (c.FUME, c.BOOMERANG):
                     continue
                 if bullet.name == c.PORTRAIT_PEA:
                     bullet.check_hit(self.zombie_groups[i])

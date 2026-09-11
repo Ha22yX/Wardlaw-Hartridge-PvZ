@@ -86,6 +86,15 @@ class Card:
         )
         self.image = self.orig_image
 
+    def fitSeedBank(self):
+        # Resize the whole rendered packet (including its cost), preserving
+        # height/readability and matching the actual clickable rectangle.
+        self.orig_image = pg.transform.smoothscale(
+            self.orig_image, (c.BAR_CARD_X_INTERNAL - 1, self.rect.h))
+        self.orig_image.set_alpha(255)
+        self.rect.size = self.orig_image.get_size()
+        self.image = self.orig_image.copy()
+
     def checkMouseClick(self, mouse_pos):
         x, y = mouse_pos
         if (
@@ -189,7 +198,7 @@ class MenuBar:
         self.rect.y = 0
 
         self.sun_value = sun_value
-        self.card_offset_x = 26
+        self.card_offset_x = 77 - c.BAR_CARD_X_INTERNAL
         self.setupCards(card_list)
 
     def loadFrame(self, name):
@@ -227,6 +236,7 @@ class MenuBar:
         for index in card_list:
             x += c.BAR_CARD_X_INTERNAL
             self.card_list.append(Card(x, y, index))
+            self.card_list[-1].fitSeedBank()
 
     def checkCardClick(self, mouse_pos):
         result = None
@@ -404,6 +414,7 @@ class Panel:
         y = 8
         x = 77 + self.selected_num * c.BAR_CARD_X_INTERNAL
         self.selected_cards.append(Card(x, y, card.index))
+        self.selected_cards[-1].fitSeedBank()
         self.selected_num += 1
 
     def deleteCard(self, index):

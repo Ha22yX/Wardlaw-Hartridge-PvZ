@@ -106,7 +106,7 @@ def integration():
         tick()
         assert not menu.cheat_menu_open
         print('PASS cheat-menu single-click open/close, hover, modal isolation, Escape, four key descriptions')
-        for stage, cards in enumerate((2, 4, 6, 10, 10), 1):
+        for stage, cards in enumerate((2, 4, 6, 11, 11), 1):
             scene = start(stage)
             assert len(bridge.last_state['cards']) == cards
             assert bridge.last_state['guide']

@@ -20,6 +20,7 @@ def validate_runtime(constants, graphics, plants):
         ('PORTRAITHEALER', 'PortraitHealer', ('Idle', 'Charge', 'Release', 'Recover')),
         ('PORTRAITCHOMPER', 'PortraitChomper', ('Idle', 'Attack', 'Chew', 'Swallow')),
         ('PORTRAITTHREEPEATER', 'PortraitThreepeater', ('Idle', 'Charge', 'Shoot', 'Recover')),
+        ('PORTRAITBOOMERANG', 'PortraitBoomerang', ('Idle', 'Charge', 'Throw', 'Wait', 'Catch')),
     )
     missing = []
     for attribute, class_name, phases in features:

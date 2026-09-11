@@ -9,7 +9,7 @@ STARTERS = (c.GRINDEVOURER, c.GASSUNFLOWER)
 REWARDS = {
     1: (c.PORTRAITTALLNUT, c.PORTRAITCHOMPER),
     2: (c.PORTRAITCHERRYBOMB, c.PORTRAITPOTATOMINE),
-    3: (c.HEADPHONEBOXER, c.PORTRAITSQUASH, c.PORTRAITHEALER, c.PORTRAITTHREEPEATER),
+    3: (c.HEADPHONEBOXER, c.PORTRAITSQUASH, c.PORTRAITHEALER, c.PORTRAITTHREEPEATER, c.PORTRAITBOOMERANG),
     4: (),
 }
 ALL_CARDS = STARTERS + REWARDS[1] + REWARDS[2] + REWARDS[3]
@@ -22,7 +22,7 @@ REST_MS = (10000, 12000, 10000, 8000, 8000)
 INTROS = {
     2: (('三条路，都要守住！', f'草坪增加到三行，游戏更有挑战性了！\n带上{c.PLANT_DISPLAY_NAMES[c.PORTRAITTALLNUT]}和{c.PLANT_DISPLAY_NAMES[c.PORTRAITCHOMPER]}，保护好每一路。'),),
     3: (('初出茅庐', f'你已经是初出茅庐了，加油吧少年！\n五行草坪，{c.PLANT_DISPLAY_NAMES[c.PORTRAITCHERRYBOMB]}和{c.PLANT_DISPLAY_NAMES[c.PORTRAITPOTATOMINE]}也来帮忙了。'),),
-    4: (('全员集合！', '你已经解锁了所有的植物，少年，加油面对未来吧！\n发挥十位伙伴的本领，胜利后就能挑战无尽模式。'),),
+    4: (('全员集合！', '你已经解锁了所有的植物，少年，加油面对未来吧！\n发挥十一位伙伴的本领，胜利后就能挑战无尽模式。'),),
     5: (('无尽守卫', '每一波清完，下一波才会到来，而且会更难。\n阵容和阳光会保留。少年，看看你能守住多少波！'),),
 }
 
@@ -136,6 +136,7 @@ DESCRIPTIONS = {
     c.PORTRAITSQUASH: (c.PLANT_DISPLAY_NAMES[c.PORTRAITSQUASH], ('发现附近僵尸后急眼、跳起砸下。', '落地对同一行附近敌人造成 1800。', '一次性使用，适合紧急救场。')),
     c.PORTRAITHEALER: (c.PLANT_DISPLAY_NAMES[c.PORTRAITHEALER], ('种下 2 秒首疗，每 15 秒治疗 3×3。', '恢复每株最大血量 20%，不超过满血。', '同株 15 秒内不叠加治疗，不复活。')),
     c.PORTRAITTHREEPEATER: (c.PLANT_DISPLAY_NAMES[c.PORTRAITTHREEPEATER], ('同时射击本行及相邻的上下两行。', '每 1.4 秒一轮，每颗豌豆伤害 20。', '边缘处不会向草坪外发射。')),
+    c.PORTRAITBOOMERANG: (c.PLANT_DISPLAY_NAMES[c.PORTRAITBOOMERANG], ('向前投出回旋镖，最远攻击同路 5 格。', '穿透敌人后返回，去回程各造成 20 伤害。', '每程每只僵尸最多命中一次，每 2.5 秒投掷。')),
 }
 
 

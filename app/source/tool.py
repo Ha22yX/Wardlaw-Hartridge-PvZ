@@ -361,6 +361,9 @@ from .component.portrait_threepeater import install_assets as install_portrait_t
 
 install_portrait_threepeater(GFX)
 
+from .component.portrait_boomerang import install_assets as install_portrait_boomerang
+install_portrait_boomerang(GFX)
+
 from .component.avatar_sun_assets import install_assets as install_avatar_sun
 
 install_avatar_sun(GFX)
