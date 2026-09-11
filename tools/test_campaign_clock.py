@@ -53,10 +53,43 @@ with tempfile.TemporaryDirectory(prefix='campaign-clock-test-') as tmp:
         scene.setupMouseImage(*scene.click_result)
         scene.addPlant(scene.map.getMapGridPos(2, 2))
         assert not scene.drag_plant and sum(map(len, scene.plant_groups)) == 1
+        assert not card.canClick(9999, scene.current_time)
+        assert pg.image.tobytes(card.image, 'RGBA') != ready_image, 'Planting must darken the card in the same frame'
         scene.update(game.screen, 61500, None, [False, False])
         assert not card.canClick(9999, scene.current_time)
         assert pg.image.tobytes(card.image, 'RGBA') != ready_image
         assert card.refresh_timer <= scene.current_time
+
+        # Real selection/planting clicks less than 250 ms apart, at 2x speed.
+        scene.speed_multiplier = 2
+        other = scene.menubar.card_list[1]
+        other_ready = pg.image.tobytes(other.image, 'RGBA')
+        scene.update(game.screen, 61520, other.rect.center, [True, False])
+        assert scene.drag_plant
+        scene.update(game.screen, 61540, scene.map.getMapGridPos(3, 2), [True, False])
+        assert not scene.drag_plant
+        assert not other.canClick(9999, scene.current_time)
+        assert pg.image.tobytes(other.image, 'RGBA') != other_ready
+        scene.handle_key(pg.event.Event(pg.KEYDOWN, key=pg.K_0, mod=0))
+        assert other.canClick(9999, scene.current_time)
+        assert pg.image.tobytes(other.image, 'RGBA') == other_ready
+
+        # Every card uses the same visual/interaction boundary, even when a
+        # stale refresh timestamp or a frozen tutorial clock is present.
+        for seed in scene.menubar.card_list:
+            seed.clicked = False
+            seed.setFrozenTime(1000)
+            cooling = pg.image.tobytes(seed.image, 'RGBA')
+            assert not seed.canClick(9999, 1000)
+            seed.refresh_timer = 999999
+            seed.update(9999, 1000)
+            assert seed.refresh_timer == 1000
+            assert pg.image.tobytes(seed.image, 'RGBA') == cooling
+            expiry = 1000 + seed.frozen_time
+            seed.update(9999, expiry)
+            assert seed.canClick(9999, expiry)
+            assert pg.image.tobytes(seed.image, 'RGBA') != cooling
+            assert seed.orig_image.get_alpha() == 255
 
         deadline = scene.campaign.next_wave
         scene.campaign.update(scene, deadline - 1)
@@ -64,5 +97,5 @@ with tempfile.TemporaryDirectory(prefix='campaign-clock-test-') as tmp:
         scene.campaign.update(scene, deadline)
         assert scene.campaign.wave == 1
         assert sum(map(len, scene.zombie_groups)) == 1
-    print('PASS +/- jump clock, first planted card cooldown rendering, guide freeze, exact 20-second endless start')
+    print('PASS +/- jump clock, immediate planting darkening, rapid clicks at 2x, zero-key reset, every card cooldown boundary, guide freeze, exact 20-second endless start')
 pg.quit()

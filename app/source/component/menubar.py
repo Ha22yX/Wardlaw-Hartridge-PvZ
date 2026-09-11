@@ -98,7 +98,7 @@ class Card:
     def canClick(self, sun_value, current_time):
         if (
             self.sun_cost <= sun_value
-            and (current_time - self.frozen_timer) > self.frozen_time
+            and (current_time - self.frozen_timer) >= self.frozen_time
         ):
             return True
         return False
@@ -127,13 +127,18 @@ class Card:
 
     def setFrozenTime(self, current_time):
         self.frozen_timer = current_time
+        # A planting event must invalidate the ready image immediately, even
+        # while a tutorial freezes normal updates or after a clock reset.
+        self.update(self.sun_cost, current_time)
 
     def createShowImage(self, sun_value, current_time):
         # 有关是否满足冷却与阳光条件的图片形式
-        time = current_time - self.frozen_timer
+        time = max(0, current_time - self.frozen_timer)
+        # Never alter the surface used by the ready image or another render.
+        source = self.orig_image.copy()
         if time < self.frozen_time:   # cool down status
             image = pg.Surface((self.rect.w, self.rect.h))  # 黑底
-            frozen_image = self.orig_image
+            frozen_image = source
             frozen_image.set_alpha(128)
             frozen_height = (
                 (self.frozen_time - time) / self.frozen_time
@@ -142,33 +147,34 @@ class Card:
             image.blit(
                 frozen_image, (0, 0), (0, 0, self.rect.w, frozen_height)
             )
-            self.orig_image.set_alpha(192)
+            source.set_alpha(192)
             image.blit(
-                self.orig_image,
+                source,
                 (0, frozen_height),
                 (0, frozen_height, self.rect.w, self.rect.h - frozen_height),
             )
         elif self.sun_cost > sun_value:   # disable status
             image = pg.Surface((self.rect.w, self.rect.h))  # 黑底
-            self.orig_image.set_alpha(192)
+            source.set_alpha(192)
             image.blit(
-                self.orig_image, (0, 0), (0, 0, self.rect.w, self.rect.h)
+                source, (0, 0), (0, 0, self.rect.w, self.rect.h)
             )
         elif self.clicked:
             image = pg.Surface((self.rect.w, self.rect.h))  # 黑底
-            chosen_image = self.orig_image
+            chosen_image = source
             chosen_image.set_alpha(128)
 
             image.blit(chosen_image, (0, 0), (0, 0, self.rect.w, self.rect.h))
         else:
-            image = self.orig_image
+            image = source
             image.set_alpha(255)
         return image
 
     def update(self, sun_value, current_time):
-        if (current_time - self.refresh_timer) >= 250:
-            self.image = self.createShowImage(sun_value, current_time)
-            self.refresh_timer = current_time
+        # Small card surfaces are cheap to draw; do not throttle state changes
+        # behind a cached timer which can belong to the previous clock/scene.
+        self.image = self.createShowImage(sun_value, current_time)
+        self.refresh_timer = current_time
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -254,11 +260,14 @@ class MenuBar:
         if self.sun_value > 9990:
             self.sun_value = 9990
 
-    def setCardFrozenTime(self, plant_name):
+    def setCardFrozenTime(self, plant_name, current_time=None):
+        if current_time is not None:
+            self.current_time = current_time
         for card in self.card_list:
             if c.PLANT_CARD_INFO[card.index][c.PLANT_NAME_INDEX] == plant_name:
                 card.setFrozenTime(self.current_time)
                 break
+        self.update(self.current_time)
 
     def drawSunValue(self):
         self.value_image = getSunValueImage(self.sun_value)

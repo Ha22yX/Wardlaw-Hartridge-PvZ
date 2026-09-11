@@ -92,7 +92,7 @@ class Level(tool.State):
         if key in (pg.K_0, pg.K_KP0):
             if self.state == c.PLAY and self.bar_type == c.CHOOSEBAR_STATIC:
                 for card in self.menubar.card_list:
-                    # canClick uses strict >, so expiry needs a one-ms margin.
+                    # Expire the cooldown and refresh the card immediately.
                     card.frozen_timer = self.current_time - card.frozen_time - 1
                     card.refresh_timer = self.current_time - 250
                 self.menubar.update(self.current_time)
@@ -1354,7 +1354,7 @@ class Level(tool.State):
         self.new_plant_and_positon = (new_plant.name, (map_x, map_y))
         if self.bar_type == c.CHOOSEBAR_STATIC:
             self.menubar.decreaseSunValue(self.select_plant.sun_cost)
-            self.menubar.setCardFrozenTime(self.plant_name)
+            self.menubar.setCardFrozenTime(self.plant_name, self.current_time)
         else:
             self.menubar.deleateCard(self.select_plant)
 
