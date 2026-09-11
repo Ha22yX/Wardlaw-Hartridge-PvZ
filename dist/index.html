@@ -29,12 +29,13 @@
       </div>
     </div>
     <div id="game-viewport">
-      <canvas id="canvas" width="800" height="600" tabindex="0" aria-label="游戏画面：点击卡片，再点击草坪种植"></canvas>
-      <div id="boot-screen">
+      <canvas id="canvas" width="800" height="600" tabindex="-1" inert aria-busy="true" aria-label="游戏画面：点击卡片，再点击草坪种植"></canvas>
+      <div id="boot-screen" aria-label="游戏加载">
         <img src="menu-preview.png" alt="原游戏主菜单" width="800" height="600">
         <div class="boot-panel">
-          <p id="boot-status" role="status">完整游戏正在加载，首次打开需要下载素材。</p>
-          <progress id="boot-progress" max="100" value="0"></progress>
+          <p id="boot-status" role="status">正在准备游戏运行环境…</p>
+          <progress id="boot-progress" max="100" value="0" aria-label="游戏加载进度"></progress>
+          <p id="boot-percent">0%</p>
           <button id="start-button">点击开启声音</button>
           <button id="retry-button" hidden>重新加载</button>
         </div>
@@ -110,18 +111,25 @@ async def custom_site():
         platform.fopen.flags = platform.ffi({"redirect": "follow", "credentials": "same-origin"})
         async with platform.fopen("asset-packs.json", "r") as handle:
             packs = json.loads(handle.read())
+        total_bytes = sum(pack["bytes"] for pack in packs["packs"])
+        completed_bytes = 0
+        platform.window.pvzReceive("progress", "10")
         for index, pack in enumerate(packs["packs"]):
             platform.window.pvzReceive("status", json.dumps(f"正在加载完整素材 {index + 1}/{len(packs['packs'])}…"))
             async with platform.fopen(pack["url"], "rb") as archive:
+                platform.window.pvzReceive("status", json.dumps(f"正在展开游戏素材 {index + 1}/{len(packs['packs'])}…"))
+                await asyncio.sleep(0)
                 with zipfile.ZipFile(archive) as bundle:
                     bundle.extractall(appdir.as_posix())
-            platform.window.pvzReceive("progress", json.dumps(round((index + 1) / len(packs["packs"]) * 80)))
+            completed_bytes += pack["bytes"]
+            platform.window.pvzReceive("progress", json.dumps(10 + round(completed_bytes / total_bytes * 75)))
+            await asyncio.sleep(0)
         platform.run_main(PyConfig, loaderhome=appdir / "assets", loadermain=None)
         while embed.counter() < 0:
             await asyncio.sleep(.1)
         main = appdir / "assets" / "main.py"
         __import__(__name__).__file__ = main
-        platform.window.pvzReceive("status", json.dumps("素材已就绪，点击画面开启游戏与声音。"))
+        platform.window.pvzReceive("status", json.dumps("素材已就绪，正在准备游戏画面…"))
         platform.window.pvzReceive("progress", "90")
         while not platform.window.pvzStartRequested:
             await asyncio.sleep(.1)

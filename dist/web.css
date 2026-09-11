@@ -63,7 +63,25 @@ body { padding: 0; margin: 0; height: 100dvh; background: #000; display: block; 
 #game-shell:fullscreen #game-viewport { width: min(100vw, calc(100dvh * 4 / 3)); }
 .browser-tools, #touch-controls, #guide-panel, #reward-panel { display: none !important; }
 .boot-panel { border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0; }
-#boot-status, #boot-progress { display: none; }
+#boot-status, #boot-progress, #boot-percent { display: none; }
+#boot-screen { position: fixed; inset: 0; z-index: 1000; touch-action: none; }
+#boot-screen::after { content: ""; position: absolute; inset: 0; background: #0009; display: none; }
+#boot-screen .boot-panel { z-index: 1; }
+#boot-screen.loading::after, #boot-screen.failed::after { display: block; }
+#boot-screen.loading .boot-panel, #boot-screen.failed .boot-panel {
+  top: 50%; bottom: auto; transform: translate(-50%, -50%);
+  padding: 20px; border: 3px solid #815331; border-radius: 9px;
+  background: #efdfbb url("paper.png") center/100% 100%;
+}
+#boot-screen.loading #boot-status, #boot-screen.loading #boot-progress,
+#boot-screen.loading #boot-percent { display: block; }
+#boot-progress { height: 18px; border: 2px solid #655338; border-radius: 9px; overflow: hidden; background: #282d24; }
+#boot-progress::-webkit-progress-bar { background: #282d24; }
+#boot-progress::-webkit-progress-value { background: #78af32; }
+#boot-progress::-moz-progress-bar { background: #78af32; }
+#boot-percent { font-variant-numeric: tabular-nums; }
+#boot-screen.loading #start-button { display: none; }
+#boot-screen.failed #boot-progress, #boot-screen.failed #boot-percent { display: none; }
 #start-button { max-width: 100%; white-space: normal; min-height: 48px; }
 #start-button:disabled { opacity: 1; }
 #boot-screen.failed .boot-panel { background: #efdfbb; border: 3px solid #815331; padding: 16px; }

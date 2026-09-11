@@ -24,9 +24,14 @@ async def main():
         c.USERDATA_PATH = "/tmp/pypvz-browser/userdata.json"
         c.USERLOG_PATH = "/tmp/pypvz-browser/run.log"
         bridge.prepare_save(c)
+        bridge.notify("progress", 92)
+        await asyncio.sleep(0)
         # Import exactly the original game and all of its asset installers.
         from source.runtime_check import load_game_modules
         c, tool, level, mainmenu, screen = load_game_modules()
+        bridge.status("正在初始化主菜单…")
+        bridge.notify("progress", 97)
+        await asyncio.sleep(0)
         bridge.install(tool, c)
 
         class BrowserControl(tool.Control):
@@ -52,6 +57,13 @@ async def main():
         }
         game.setup_states(states, c.MAIN_MENU)
         bridge.save(game.game_info)
+        # Do not uncover an unpainted canvas or replay input captured by SDL
+        # during startup. Publish ready only after the first complete frame.
+        pg.event.clear()
+        game.update()
+        pg.display.update()
+        await asyncio.sleep(0)
+        pg.event.clear()
         bridge.ready()
         last = time.perf_counter()
         accumulator = 0

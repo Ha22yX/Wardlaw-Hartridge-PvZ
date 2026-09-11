@@ -3,6 +3,7 @@
 const byId = id => document.getElementById(id);
 const queue = [];
 let latest = null, started = false, ready = false, saved = null;
+let failed = false, bootProgress = 0;
 const saveKey = "pypvz.portrait.save.v1";
 const controller = new AbortController();
 const signal = controller.signal;
@@ -10,11 +11,31 @@ window.pvzStartRequested = false;
 const media = matchMedia("(max-width: 900px)");
 
 function enqueue(action, extra = {}) {
-  if (!ready && action !== "home") return false;
+  if (!ready) return false;
   queue.push({action, ...extra});
   return true;
 }
 window.pvzDrain = () => JSON.stringify(queue.splice(0, 50));
+// Capture before SDL: loading clicks and keys must never be queued for later.
+for (const type of ["pointerdown", "pointerup", "pointermove", "mousedown", "mouseup",
+                    "mousemove", "click", "dblclick", "touchstart", "touchmove", "touchend",
+                    "wheel", "contextmenu", "keydown", "keyup", "keypress"]) {
+  window.addEventListener(type, event => {
+    if (ready) return;
+    if (event.target?.closest?.("#start-button, #retry-button") &&
+        (!type.startsWith("key") || ["Enter", " ", "Tab"].includes(event.key))) return;
+    event.stopImmediatePropagation();
+    // Keep browser-level reload/tab shortcuts available, but not SDL input.
+    if (!type.startsWith("key")) event.preventDefault();
+  }, {capture: true, passive: false, signal});
+}
+function showBootProgress(value) {
+  if (failed || ready || !Number.isFinite(Number(value))) return;
+  // Only the game-ready signal can complete the bar and unlock interaction.
+  bootProgress = Math.max(bootProgress, Math.min(99, Math.max(0, Number(value))));
+  byId("boot-progress").value = bootProgress;
+  byId("boot-percent").textContent = Math.floor(bootProgress) + "%";
+}
 let pageFocused = document.hasFocus();
 window.pvzVisible = () => !document.hidden && pageFocused && document.hasFocus() &&
   !byId("help-dialog").open && !byId("details-dialog").open;
@@ -98,12 +119,17 @@ window.pvzReceive = (kind, encoded) => {
   let data;
   try { data = JSON.parse(encoded); } catch { return; }
   if (kind === "status") {
-    byId("boot-status").textContent = data;
-    if (started && !ready) byId("start-button").textContent = data;
+    if (!failed && !ready) byId("boot-status").textContent = data;
   }
-  if (kind === "progress") byId("boot-progress").value = data;
+  if (kind === "progress") showBootProgress(data);
   if (kind === "warning") warning(data);
   if (kind === "failure") {
+    failed = true;
+    ready = false;
+    queue.length = 0;
+    byId("canvas").inert = true;
+    byId("canvas").tabIndex = -1;
+    byId("canvas").setAttribute("aria-busy", "true");
     byId("boot-screen").hidden = false;
     byId("boot-screen").classList.add("failed");
     byId("boot-status").textContent = "游戏启动失败：" + String(data).trim().split("\n").at(-1);
@@ -113,9 +139,15 @@ window.pvzReceive = (kind, encoded) => {
     window.pvzError = data;
   }
   if (kind === "ready") {
+    if (!started || failed || ready) return;
     ready = true;
+    queue.length = 0;
     byId("boot-progress").value = 100;
+    byId("boot-percent").textContent = "100%";
     byId("boot-screen").hidden = true;
+    byId("canvas").inert = false;
+    byId("canvas").tabIndex = 0;
+    byId("canvas").setAttribute("aria-busy", "false");
     byId("canvas").focus({preventScroll: true});
   }
   if (kind === "save") {
@@ -200,13 +232,17 @@ function makeCard(card) {
 for (const button of document.querySelectorAll("[data-action]"))
   button.addEventListener("click", () => enqueue(button.dataset.action), {signal});
 byId("start-button").addEventListener("click", () => {
+  if (started || failed) return;
   started = true;
+  byId("boot-screen").classList.add("loading");
+  byId("canvas").inert = true;
   pageFocused = document.hasFocus();
   if (window.MM) window.MM.UME = true;
   window.pvzStartRequested = true;
   syncAudio();
   byId("start-button").textContent = "正在开启，请稍候…";
   byId("start-button").disabled = true;
+  byId("start-button").blur();
   // SDL's own user-engagement handler receives this real pointer gesture.
 }, {signal});
 byId("retry-button").addEventListener("click", () => location.reload(), {signal});
