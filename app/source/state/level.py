@@ -117,7 +117,9 @@ class Level(tool.State):
         self.game_info[progress_key] = target
         self.done = False
         self.next = None
-        now = pg.time.get_ticks() * self.game_info[c.GAME_RATE]
+        # Reuse the control clock from the latest update, before guide/pause/
+        # speed adjustments. Browser simulation time differs from SDL uptime.
+        now = self.guide_last_time
         self.startup(now, self.game_info)
         self.saveUserData()
         self.shortcutTip(f'已切换：{self.map_data[c.GAME_TITLE]}')

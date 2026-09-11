@@ -17,7 +17,7 @@ TITLES = ('初见草坪', '三路挑战', '初出茅庐', '全员出击', '无�
 # Finite levels have explicit encounter budgets, not endless-mode scaling.
 WAVE_COUNTS = {1: (1, 2, 2, 3), 2: (3, 5, 7, 9),
                3: (4, 7, 10, 13, 16), 4: (6, 10, 14, 18, 22, 26)}
-PREPARATION_MS = (18000, 24000, 30000, 32000, 18000)
+PREPARATION_MS = (18000, 24000, 30000, 32000, 20000)
 REST_MS = (10000, 12000, 10000, 8000, 8000)
 INTROS = {
     2: (('三条路，都要守住！', f'草坪增加到三行，游戏更有挑战性了！\n带上{c.PLANT_DISPLAY_NAMES[c.PORTRAITTALLNUT]}和{c.PLANT_DISPLAY_NAMES[c.PORTRAITCHOMPER]}，保护好每一路。'),),
