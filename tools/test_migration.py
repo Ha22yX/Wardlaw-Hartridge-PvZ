@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGINAL = ROOT.parent / "pypvz"
@@ -128,6 +129,20 @@ def integration():
             assert scene.speed_multiplier == 1
         # All original mini-games, including their conveyor-card representation.
         from source.component import menubar
+        from source.component.custom_campaign import CardTooltip, DESCRIPTIONS
+        # Focused hover is absent under SDL dummy by default. Exercise real
+        # moving cards explicitly so tooltip crashes cannot escape this test.
+        probe = menubar.MoveCard(100, 6, c.CARD_GASSUNFLOWER, c.GASSUNFLOWER)
+        tooltip = CardTooltip()
+        tooltip.update([probe], probe.rect.center, 1000)
+        tooltip.update([probe], probe.rect.center, 1499)
+        assert not tooltip.visible
+        tooltip.update([probe], probe.rect.center, 1500)
+        assert tooltip.visible
+        tooltip.draw(game.screen)
+        assert not hasattr(probe, 'info'), 'Keep conveyor identity for browser adapter'
+        tooltip.update([], probe.rect.center, 1501)
+        assert not tooltip.visible and tooltip.card is None
         for stage in range(1, 6):
             scene = start(stage, c.MODE_LITTLEGAME)
             for _ in range(10):
@@ -136,6 +151,41 @@ def integration():
                 scene.menubar.createCard()
                 bridge.publish(force=True)
                 assert bridge.last_state['cards']
+                for card in scene.menubar.card_list:
+                    with patch.object(pg.mouse, 'get_focused', return_value=True), \
+                         patch.object(pg.mouse, 'get_pos', return_value=card.rect.center), \
+                         patch.object(pg.time, 'get_ticks', return_value=1000):
+                        scene.updateCardTooltip(game.screen, scene.current_time)
+                    with patch.object(pg.mouse, 'get_focused', return_value=True), \
+                         patch.object(pg.mouse, 'get_pos', return_value=card.rect.center), \
+                         patch.object(pg.time, 'get_ticks', return_value=1500):
+                        scene.updateCardTooltip(game.screen, scene.current_time)
+                    assert scene.card_tooltip.visible == (card.plant_name in DESCRIPTIONS)
+                assert all(card['cost'] == 0 and card['available'] for card in bridge.last_state['cards'])
+        # Return from a conveyor game, then enter every saved adventure stage
+        # through the actual menu click/transition, reusing the same Level.
+        for stage in range(1, 6):
+            bridge.action({'action': 'home'})
+            game.game_info[c.LEVEL_NUM] = stage
+            tick()
+            bridge.click(game.state.adventure_rect.center)
+            tick()
+            tick(3300)
+            tick()
+            assert game.state_name == c.LEVEL
+            assert game.game_info[c.GAME_MODE] == c.MODE_ADVENTURE
+            scene = game.state
+            assert isinstance(scene.menubar, menubar.MenuBar)
+            assert scene.map_data['custom_stage'] == stage
+            bridge.action({'action': 'skip'})
+            tick()
+            card = scene.menubar.card_list[0]
+            tooltip = scene.card_tooltip
+            tooltip.update(scene.menubar.card_list, card.rect.center, 1000)
+            tooltip.update(scene.menubar.card_list, card.rect.center, 1500)
+            assert tooltip.visible
+            tooltip.draw(game.screen)
+        print('PASS moving/static card hover and actual menu entry into all five adventure stages')
         data = sanitize_save({c.GAME_RATE: 1.5, c.SOUND_VOLUME: .75}, c)
         assert data[c.GAME_RATE] == 1.5 and data[c.SOUND_VOLUME] == .75
         bridge.action({'action': 'import', 'save': data})

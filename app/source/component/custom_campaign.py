@@ -149,9 +149,18 @@ class CardTooltip:
         self.font = pg.font.Font(c.FONT_PATH, 16)
         self.title_font = pg.font.Font(c.FONT_PATH, 20)
 
+    @staticmethod
+    def plant_name(card):
+        # Conveyor cards carry their identity directly, not the seed-packet
+        # info/cost/cooldown tuple. Do not add fake info to MoveCard: the web
+        # adapter also uses that distinction for free, single-use cards.
+        if hasattr(card, 'plant_name'):
+            return card.plant_name
+        return card.info[c.PLANT_NAME_INDEX]
+
     def update(self, cards, pos, now, enabled=True):
         hovered = next((card for card in cards if card.rect.collidepoint(pos)
-                        and card.info[0] in DESCRIPTIONS), None) if enabled and pos else None
+                        and self.plant_name(card) in DESCRIPTIONS), None) if enabled and pos else None
         if hovered is not self.card:
             self.card, self.since = hovered, now
         self.visible = hovered is not None and now - self.since >= self.DELAY
@@ -160,11 +169,12 @@ class CardTooltip:
         if not self.visible:
             return
         card = self.card
-        title, lines = DESCRIPTIONS[card.info[0]]
+        title, lines = DESCRIPTIONS[self.plant_name(card)]
         rect = pg.Rect(max(8, min(452, card.rect.centerx - 168)), card.rect.bottom + 10, 340, 154)
         surface.blit(paper_panel(rect.size), rect)
         surface.blit(self.title_font.render(title, True, (41, 64, 32)), (rect.x + 14, rect.y + 10))
-        cost = f'{card.sun_cost} 阳光  ·  卡片冷却 {card.frozen_time / 1000:g} 秒'
+        cost = (f'{card.sun_cost} 阳光  ·  卡片冷却 {card.frozen_time / 1000:g} 秒'
+                if hasattr(card, 'info') else '传送带卡片 · 无需阳光 · 使用后消耗')
         surface.blit(self.font.render(cost, True, (116, 87, 42)), (rect.x + 14, rect.y + 40))
         for i, line in enumerate(lines):
             surface.blit(self.font.render(line, True, (51, 62, 44)), (rect.x + 14, rect.y + 69 + i * 24))
