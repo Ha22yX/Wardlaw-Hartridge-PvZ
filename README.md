@@ -1,83 +1,153 @@
-# Wardlaw Hartridge PvZ · 人像草坪保卫战
+<h1 align="center">Wardlaw Hartridge PvZ</h1>
 
-以 **Wardlaw Hartridge School 国际生的抽象整活文化**为主题的改版《植物大战僵尸》。将人物形象融入植物、僵尸和引导角色，保留熟悉的草坪塔防玩法，加入自定义动画、技能、关卡与网页体验。
+<p align="center">Familiar lawn defense. Familiar faces. A very different school day.<br/>A personal Plants vs. Zombies fan project inspired by the inside jokes of Wardlaw Hartridge's international students.</p>
 
-本项目是个人非官方改版，不代表学校或《植物大战僵尸》官方。仓库以 private 形式保存源码及人物素材。
+<p align="center">
+  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a> ·
+  <a href="https://pvz.rosebeg.com/">Play in Browser</a> ·
+  <a href="#quickstart">Quickstart</a> · <a href="#credits-and-usage">Credits</a>
+</p>
 
-**原项目 / 原作者仓库：[wszqkzqk/pypvz](https://github.com/wszqkzqk/pypvz)**。本改版在该 Python 实现的基础上进行角色定制、玩法扩展和浏览器移植，并非从零原创的游戏引擎。
+<p align="center">
+  <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img alt="Game engine: Pygame CE" src="https://img.shields.io/badge/Game-Pygame_CE-568B35?style=for-the-badge" />
+  <img alt="Browser runtime: WebAssembly" src="https://img.shields.io/badge/Browser-WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white" />
+</p>
 
-## 改版内容
+<p align="center">
+  <img src="dist/custom-cover-v2.png" alt="Project cover artwork with portrait-themed plants and zombies facing off on a suburban lawn" width="100%" />
+  <br/><sub>Project cover artwork; the game uses its own animated character sprites.</sub>
+</p>
 
-- 人物主题植物与僵尸、自定义引导角色「凯夫」、角色动画与技能音效。
-- 11 格顶部卡栏；「回头浪子」向同路前方 5 格投掷穿透回旋镖，去回程各命中一次，含待机、蓄力、投掷、等待和接回动画。
-- 前四关循序推进：一行、三行、五行草坪，固定植物阵容与通关解锁奖励。
-- 第五关为逐波提升难度的无尽模式，同时保留小游戏入口。
-- 卡片介绍、治疗血条、二倍速，以及 `9`（增加 100 阳光）、`0`（清空植物卡片冷却）、`-`（上一关）、`=` / `+`（下一关）快捷键。
-- 自适应网页显示、开始与加载界面、浏览器存档，以及切到后台自动暂停和静音。
+## Overview
 
-## 网页移植
+Wardlaw Hartridge PvZ turns school inside jokes into a playable lawn-defense campaign. Portrait-based plants, zombies, and a custom guide named **凯夫** bring familiar faces into the game, with their own animations, attacks, and sound effects.
 
-浏览器通过 Pygbag / CPython WebAssembly 执行现有 Python 游戏，不是 JavaScript 简化重写。
+Built on [wszqkzqk/pypvz](https://github.com/wszqkzqk/pypvz), this edition adds a custom five-stage campaign, an eleven-card roster, and a browser port that runs the Python game through Pygbag and CPython WebAssembly. The original 800 × 600 playfield scales to fit the screen while retaining the full board and card bank.
 
-## 保持不变
+This is an **unofficial personal fan project**, unaffiliated with the school or the official Plants vs. Zombies game. The game interface and dialogue are primarily in Simplified Chinese. The repository is private and contains custom portrait assets.
 
-- `app/resources/`：保存本改版使用的完整角色、界面、动画和音频资源，包括自定义素材。
-- `app/source/`：原角色、动画、伤害、血量、冷却、费用、碰撞、地图、五关战役、奖励、无尽难度、小游戏、菜单、教学、音效代码。
-- 原始 800 × 600 游戏画面，按比例适配屏幕，不拉伸或裁掉棋盘。
+## Play
 
-## 仅平台适配
+Open **[pvz.rosebeg.com](https://pvz.rosebeg.com/)**, click **Start the game**, and wait for the runtime and assets to load. Choose **开始冒险吧** for the campaign or **玩玩小游戏** for mini-games.
 
-- `app/main.py`：异步浏览器主循环，原 50 逻辑帧率，保留游戏原有二倍速。
-- `app/web_platform.py`：浏览器存档、触屏点击、声音、页面可见性。
-- `source/tool.py` 仅新增时钟接口，并让 CSS 管理画面缩放。
-- 正式入口显示人物主题封面和 `Start the game` 按钮，点击后加载游戏并开启声音；加载完成前锁定游戏交互。电脑和手机都保留完整原卡栏、菜单和棋盘。
-- 进度存储在当前浏览器，可导入/导出原 JSON 存档。不会修改桌面版存档。
-- 浏览器首次播放音频需要用户手势；首次打开需下载完整素材和运行环境。
-- 窗口失焦或标签页隐藏时，同时暂停模拟、HTMLAudio 音乐与 WebAudio 音效。
-- WASM / JavaScript 之间采用 ASCII JSON 转义，修复加载文字与卡片说明的中文乱码。
+- **Plant:** select a card, then click or tap an empty lawn tile. Collect sun to afford more plants.
+- **Inspect:** hover over a card for half a second, or long-press it on a touch device, to read its description.
+- **Manage:** use the shovel to remove a plant and the in-game speed button to toggle 2× speed.
+- **On mobile:** landscape orientation gives the board more room. Switching away pauses the game and audio.
 
-## 正式托管
+The first launch requires an internet connection to download the game assets and the runtime from Pygbag's CDN. A click or tap is needed to enable browser audio.
 
-正式地址：https://pvz.rosebeg.com/ 。运行在用户的宝塔/Nginx 服务器，静态根目录为 `/www/wwwroot/pvz.rosebeg.com/current`。
-HTTPS 由 Let's Encrypt 签发，通过现有 `certbot-renew.timer` 自动续期。
-人工 SSH 检查入口：`/usr/local/sbin/pvz-renew-ssl.sh --dry-run --run-deploy-hooks --no-random-sleep-on-renew`。
-站点级续期钩子：`/etc/letsencrypt/renewal-hooks/deploy/50-pvz-nginx`；只有该证书成功续期后才检查并重载 Nginx。
-该次部署未修改任何 SSH 登录凭据，也未使用或公开宝塔接口密钥。
+### Progress and saves
 
-## 本地运行 / 更新
+Progress is stored in the current browser. Use **操作 / 存档** to export a JSON backup or import one on another device. Refreshing does **not** preserve an unfinished battle; clearing browser data removes local progress. Browser saves are separate from the desktop version's save files.
+
+## Features
+
+| Feature | What is included |
+| --- | --- |
+| Portrait cast | Custom plants, regular and elite zombies, guide dialogue, animations, and sound effects |
+| Eleven-card roster | Sun production, homing shots, blocking, chomping, explosions, melee attacks, healing, three-lane fire, and a returning boomerang |
+| Campaign progression | Fixed decks, tutorial planting, and card rewards as the lawn expands from one lane to three and then five |
+| Endless defense | Stage five keeps the board and sun between waves while enemy strength increases |
+| Mini-games | The inherited mini-game menu remains available alongside the custom campaign |
+| Game feedback | Card descriptions, health bars for supported characters, and 2× speed |
+| Browser support | Mouse and touch input, proportional display scaling, local saves, and automatic pause/mute on focus loss |
+
+The **回头浪子** boomerang travels up to five tiles forward in its lane, pierces enemies, and can hit each enemy once on the outward trip and once on the return. Its animation includes idle, wind-up, throw, wait, and catch states.
+
+### Five-stage campaign
+
+| Stage | In-game title | Lawn | Progression |
+| --- | --- | --- | --- |
+| 1 | 初见草坪 · First Steps | 1 lane | Start with two cards; unlock the blocker and chomper |
+| 2 | 三路挑战 · Three-Lane Challenge | 3 lanes | Unlock the cherry bomb and potato mine |
+| 3 | 初出茅庐 · Finding Your Feet | 5 lanes | Unlock the boxer, squash, healer, threepeater, and boomerang |
+| 4 | 全员出击 · All Hands on Deck | 5 lanes | Use all eleven cards and clear the final finite stage |
+| 5 | 无尽守卫 · Endless Defense | 5 lanes | Survive increasingly difficult waves and improve your best wave record |
+
+### Optional keyboard shortcuts
+
+These shortcuts are available for experimentation; ordinary progression does not require them.
+
+| Key | Action |
+| --- | --- |
+| `9` | Add 100 sun |
+| `0` | Reset plant-card cooldowns |
+| `-` | Previous stage |
+| `=` / `+` | Next stage |
+
+## Quickstart
+
+Use **Python 3.12**, [uv](https://docs.astral.sh/uv/), and Git. Access to this private repository is required to clone it.
 
 ```sh
+git clone https://github.com/Ha22yX/Wardlaw-Hartridge-PvZ.git
+cd Wardlaw-Hartridge-PvZ
 uv sync
 uv run python tools/build_web.py
 uv run python -m http.server 8787 --bind 127.0.0.1 --directory dist
 ```
 
-访问 `http://127.0.0.1:8787/`。不要直接双击 HTML。`dist/` 可部署到静态 HTTPS 网站。
-运行环境从 Pygbag 官方 CDN 加载；首次启动需要联网，不是完全离线版。
+Open **[localhost:8787](http://127.0.0.1:8787/)**. Serve the files over HTTP rather than opening `index.html` directly. The build packages Python source and game resources into asset archives; the browser runtime still needs network access on first launch.
+
+The generated `dist/` directory can be served by a static HTTPS host. The existing site uses Nginx; deployment paths and certificate maintenance are recorded in [hosting notes](docs/hosting.md).
+
+## How It Works
+
+The browser runs the existing Python/Pygame game through **Pygbag 0.9.3**, with **pygame-ce 2.5.x** and **CPython 3.12 WebAssembly**. HTML, CSS, and JavaScript provide the loading screen, responsive layout, browser audio lifecycle, and save controls.
+
+- `app/main.py` supplies an asynchronous browser loop with the game's 50 logical frames per second and existing 2× speed behavior.
+- `app/web_platform.py` connects game state to browser saves, touch input, audio, and page visibility.
+- `app/source/` contains gameplay, character behavior, campaign progression, menus, and mini-games.
+- `app/resources/` holds the character, interface, animation, and audio assets.
+- `tools/build_web.py` exports interface assets and creates hashed, size-bounded game archives.
+
+```text
+app/
+  main.py                 Browser game entry point
+  web_platform.py         Browser integration
+  source/                 Game logic and custom characters
+  resources/              Sprites, animations, fonts, and audio
+dist/                     Static website and packaged game assets
+tools/                    Build script and regression checks
+docs/hosting.md           Existing deployment and maintenance notes
+pyproject.toml            Python version and dependencies
+uv.lock                   Locked dependency resolution
+UPSTREAM_README.md        Preserved upstream documentation
+```
+
+### Development checks
+
+After `uv sync`, these checks run without a separate desktop checkout. The JavaScript checks additionally require Node.js.
+
+```sh
+uv run python tools/test_campaign_clock.py
+uv run python tools/test_chomper.py
+uv run python tools/test_healer.py
+uv run python tools/test_boomerang.py
+node tools/test_audio_lifecycle.mjs
+node tools/test_boot_lifecycle.mjs
+```
+
+The broader migration check covers source/asset parity, campaign scenes, tutorial planting, speed controls, mini-games, and save import/export:
 
 ```sh
 uv run python tools/test_migration.py
 ```
 
-以上测试校验源码/素材一致性、五关场景、真实教学种植、单击加速、全部小游戏启动和存档；其中桌面版一致性对照需要同级目录 `../pypvz/` 中的对应桌面改版，单独克隆本仓库不会包含该对照目录。
+Its desktop parity comparison requires the **corresponding customized desktop project** at `../pypvz/`. Cloning this repository alone does not provide that reference; an arbitrary upstream checkout is not an equivalent baseline.
 
-不依赖桌面版对照目录的回归测试：
+### Validation status
 
-```sh
-uv run python tools/test_campaign_clock.py
-uv run python tools/test_chomper.py
-node tools/test_audio_lifecycle.mjs
-node tools/test_boot_lifecycle.mjs
-```
+The previous project notes record live-site checks on **September 10, 2026** for browser startup, the seven-step first-stage tutorial, Chinese text, planting both starter plants, and portrait/landscape layouts. Audio lifecycle behavior also has isolated checks. These checks do not establish complete playthrough coverage across every phone and browser.
 
-2026-09-10 已在正式域名实测浏览器启动、第一关七步教学、中文、两种植物的真实种植，并检查横竖屏尺寸。
-音频生命周期另有隔离测试；未声称在每种真实手机或浏览器上全部通关。
-WebMCP 为支持浏览器提供读取游戏状态和选择卡片工具，不替代可见游戏操作。
+WebMCP integration exposes game-state reading and card-selection tools to compatible browsers; normal play still uses the visible game controls.
 
-## 来源
+## Credits and Usage
 
-- 直接基于：[wszqkzqk/pypvz](https://github.com/wszqkzqk/pypvz)。原项目说明完整保留在 [UPSTREAM_README.md](UPSTREAM_README.md)。
-- 原项目注明的上游：[marblexu/PythonPlantsVsZombies](https://github.com/marblexu/PythonPlantsVsZombies)，部分代码整合自 [callmebg/PythonPlantsVsZombies](https://github.com/callmebg/PythonPlantsVsZombies)。
-- 本改版新增人物主题角色、素材、关卡与浏览器适配；原有代码和素材的归属不因此改变。
+- **Direct base:** [wszqkzqk/pypvz](https://github.com/wszqkzqk/pypvz). Its original documentation is preserved in [UPSTREAM_README.md](UPSTREAM_README.md).
+- **Earlier upstream:** [marblexu/PythonPlantsVsZombies](https://github.com/marblexu/PythonPlantsVsZombies), with some code incorporated from [callmebg/PythonPlantsVsZombies](https://github.com/callmebg/PythonPlantsVsZombies), as credited by the direct base.
+- **This edition:** custom portrait characters and assets, campaign content, gameplay extensions, and browser integration.
 
-PvZ 素材归原权利人；人物图片来自用户，仅随本私有项目保存。保留原项目个人学习研究用途声明，不声称拥有原素材版权，也不为上游代码和素材另行授予许可。
+Plants vs. Zombies assets belong to their respective rights holders. Portrait images were supplied for this private project. The upstream personal-learning-and-research usage statement is retained; this edition does not claim ownership of the original assets or grant a new license for upstream code, game assets, or portrait images.
