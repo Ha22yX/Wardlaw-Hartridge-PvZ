@@ -25,7 +25,7 @@
 
 项目基于 [wszqkzqk/pypvz](https://github.com/wszqkzqk/pypvz)，加入五关自定义战役、11 张角色卡，以及通过 Pygbag 和 CPython WebAssembly 运行 Python 游戏的浏览器移植。原始 **800 × 600** 游戏画面按比例适配屏幕，保留完整棋盘与卡栏。
 
-这是一个**个人非官方改版**，不代表学校或《植物大战僵尸》官方。游戏界面和对话以简体中文为主，仓库以私有形式保存源码和自定义人物素材。
+这是一个**个人非官方改版**，不代表学校或《植物大战僵尸》官方。游戏界面和对话以简体中文为主，仓库包含源码和自定义人物素材，使用范围见文末说明。
 
 ## 在线游玩
 
@@ -79,7 +79,7 @@
 
 ## 快速开始
 
-准备 **Python 3.12**、[uv](https://docs.astral.sh/uv/) 和 Git。克隆代码需要拥有此私有仓库的访问权限。
+准备 **Python 3.12**、[uv](https://docs.astral.sh/uv/) 和 Git。
 
 ```sh
 git clone https://github.com/Ha22yX/Wardlaw-Hartridge-PvZ.git
@@ -150,4 +150,4 @@ WebMCP 为兼容浏览器提供读取游戏状态和选择卡片的工具；正�
 - **更早上游：** 原项目注明基于 [marblexu/PythonPlantsVsZombies](https://github.com/marblexu/PythonPlantsVsZombies)，部分代码整合自 [callmebg/PythonPlantsVsZombies](https://github.com/callmebg/PythonPlantsVsZombies)。
 - **本改版新增：** 人物主题角色与素材、自定义战役、玩法扩展和浏览器适配。
 
-《植物大战僵尸》素材归各自权利人所有。人物图片由用户提供，随本私有项目保存。保留上游个人学习研究用途声明；本改版不声称拥有原素材版权，也不为上游代码、游戏素材或人物图片另行授予许可。
+《植物大战僵尸》素材归各自权利人所有。人物图片由用户提供；仓库公开不代表授予人物图片的再利用许可。保留上游个人学习研究用途声明；本改版不声称拥有原素材版权，也不为上游代码、游戏素材或人物图片另行授予许可。

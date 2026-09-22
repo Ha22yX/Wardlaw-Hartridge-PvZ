@@ -25,7 +25,7 @@ Wardlaw Hartridge PvZ turns school inside jokes into a playable lawn-defense cam
 
 Built on [wszqkzqk/pypvz](https://github.com/wszqkzqk/pypvz), this edition adds a custom five-stage campaign, an eleven-card roster, and a browser port that runs the Python game through Pygbag and CPython WebAssembly. The original 800 × 600 playfield scales to fit the screen while retaining the full board and card bank.
 
-This is an **unofficial personal fan project**, unaffiliated with the school or the official Plants vs. Zombies game. The game interface and dialogue are primarily in Simplified Chinese. The repository is private and contains custom portrait assets.
+This is an **unofficial personal fan project**, unaffiliated with the school or the official Plants vs. Zombies game. The game interface and dialogue are primarily in Simplified Chinese. The repository includes custom portrait assets; see the usage notes below.
 
 ## Play
 
@@ -79,7 +79,7 @@ These shortcuts are available for experimentation; ordinary progression does not
 
 ## Quickstart
 
-Use **Python 3.12**, [uv](https://docs.astral.sh/uv/), and Git. Access to this private repository is required to clone it.
+Use **Python 3.12**, [uv](https://docs.astral.sh/uv/), and Git.
 
 ```sh
 git clone https://github.com/Ha22yX/Wardlaw-Hartridge-PvZ.git
@@ -150,4 +150,4 @@ WebMCP integration exposes game-state reading and card-selection tools to compat
 - **Earlier upstream:** [marblexu/PythonPlantsVsZombies](https://github.com/marblexu/PythonPlantsVsZombies), with some code incorporated from [callmebg/PythonPlantsVsZombies](https://github.com/callmebg/PythonPlantsVsZombies), as credited by the direct base.
 - **This edition:** custom portrait characters and assets, campaign content, gameplay extensions, and browser integration.
 
-Plants vs. Zombies assets belong to their respective rights holders. Portrait images were supplied for this private project. The upstream personal-learning-and-research usage statement is retained; this edition does not claim ownership of the original assets or grant a new license for upstream code, game assets, or portrait images.
+Plants vs. Zombies assets belong to their respective rights holders. Portrait images were supplied for this project; public repository access does not grant permission to reuse them. The upstream personal-learning-and-research usage statement is retained; this edition does not claim ownership of the original assets or grant a new license for upstream code, game assets, or portrait images.
