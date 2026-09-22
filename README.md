@@ -27,6 +27,12 @@ Built on [wszqkzqk/pypvz](https://github.com/wszqkzqk/pypvz), this edition adds 
 
 This is an **unofficial personal fan project**, unaffiliated with the school or the official Plants vs. Zombies game. The game interface and dialogue are primarily in Simplified Chinese. The repository includes custom portrait assets; see the usage notes below.
 
+## Gameplay
+
+![Endless Defense gameplay with the eleven-card bank, portrait-themed plants across five lanes, and custom zombies](.github/assets/screenshots/endless-defense.png)
+
+**Stage 5 · Endless Defense.** A live gameplay screenshot showing the full eleven-card bank, custom character lineup, attack effects, and wave counter.
+
 ## Play
 
 Open **[pvz.rosebeg.com](https://pvz.rosebeg.com/)**, click **Start the game**, and wait for the runtime and assets to load. Choose **开始冒险吧** for the campaign or **玩玩小游戏** for mini-games.
